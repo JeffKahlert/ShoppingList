@@ -63,6 +63,9 @@ import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
 import com.example.einkaufsliste.ui.viewmodel.ShoppingListViewModel
 
+/**
+ * todo: Refactor
+ */
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -219,7 +222,6 @@ fun Item(
     item: DumbItem,
     modifier: Modifier = Modifier,
 ) {
-
     Box {
         Card(
             modifier = Modifier.padding(
@@ -246,7 +248,6 @@ fun Item(
                 Spacer(modifier = Modifier.weight(1f))
                 //CheckButton()
             }
-
         }
     }
 }
