@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Einkaufsliste</string>
+    <string name="liste">Liste</string>
+    <string name="rezepte">Rezepte</string>
+    <string name="add">Hinzufügen</string>
+    <string name="list_page_title">Einkaufsliste</string>
+    <string name="recipe_page_title">Rezepte</string>
+</resources>
