@@ -28,5 +28,5 @@ fun RecipeListLightTheme() {
 @Preview
 @Composable
 fun RecipeListDarkTheme() {
-    
+
 }
