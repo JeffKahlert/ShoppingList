@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -53,9 +54,9 @@ fun AddRecipeScreen(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
         ) {
-            EnterTextComposable(viewModel, "Name")
-            EnterTextComposable(viewModel, "Zutaten")
-            EnterTextComposable(viewModel, "Anweisung")
+            EnterTextComposable(viewModel, stringResource(R.string.name))
+            EnterTextComposable(viewModel, stringResource(R.string.ingredients))
+            EnterTextComposable(viewModel, stringResource(R.string.instruction))
 
         }
         Spacer(Modifier.weight(1f))
@@ -130,12 +131,11 @@ fun AddRecipeTopBar(
         }
         Spacer(Modifier.weight(1f))
         Text(
-            text = "Rezept",
+            text = stringResource(R.string.recipe),
             style = MaterialTheme.typography.displayLarge,
             modifier = Modifier
                 .padding(16.dp)
         )
-
     }
 }
 
@@ -193,7 +193,7 @@ fun SaveAndCancelButtons(
                 shape = Shapes.medium
             ) {
                 Text(
-                    text = "Abbrechen",
+                    text = stringResource(R.string.cancel),
                     style = MaterialTheme.typography.displayMedium
                 )
             }
@@ -210,7 +210,7 @@ fun SaveAndCancelButtons(
                 shape = Shapes.medium
             ) {
                 Text(
-                    text = "Speichern",
+                    text = stringResource(R.string.save),
                     style = MaterialTheme.typography.displayMedium
                 )
             }

@@ -7,4 +7,7 @@
     <string name="recipe_page_title">Rezepte</string>
     <string name="ingredients">Zutaten</string>
     <string name="instruction">Anweisung</string>
+    <string name="name">Name</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="save">Speichern</string>
 </resources>
