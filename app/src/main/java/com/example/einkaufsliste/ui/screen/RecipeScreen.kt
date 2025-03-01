@@ -20,11 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -47,7 +43,9 @@ import com.example.einkaufsliste.ui.viewmodel.RecipeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeAppScreen(
+fun RecipesScreen(
+    onNavigateToShoppingListButton: () -> Unit,
+    onAddRecipeButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -60,12 +58,17 @@ fun RecipeAppScreen(
             contentAlignment = Alignment.Center,
             modifier = Modifier.weight(0.1f)
         ) {
-            RecipeAppTopBar(Modifier.fillMaxWidth())
+            RecipeAppTopBar(
+                onNavigateToShoppingListButton = onNavigateToShoppingListButton,
+                Modifier.fillMaxWidth()
+            )
         }
         Box(
             modifier = Modifier.weight(0.9f)
         ) {
-            RecipeList()
+            RecipeList(
+                onAddRecipeButton = onAddRecipeButton,
+            )
         }
     }
 
@@ -73,6 +76,7 @@ fun RecipeAppScreen(
 
 @Composable
 fun RecipeList(
+    onAddRecipeButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -91,7 +95,7 @@ fun RecipeList(
             modifier = Modifier.weight(0.1f)
         ) {
             Button(
-                onClick = {},
+                onClick = onAddRecipeButton,
                 shape = Shapes.medium,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -184,13 +188,14 @@ fun RecipeInformation(
 
 @Composable
 fun RecipeAppTopBar(
+    onNavigateToShoppingListButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
     ) {
         Button(
-            onClick = {},
+            onClick = onNavigateToShoppingListButton,
             shape = Shapes.medium,
             colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondaryContainer),
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
@@ -203,7 +208,7 @@ fun RecipeAppTopBar(
         }
         Spacer(Modifier.weight(1f))
         Text(
-            text = "Rezepte",
+            text = stringResource(R.string.recipes),
             style = MaterialTheme.typography.displayLarge,
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
         )
@@ -218,7 +223,11 @@ fun RecipeListLightTheme() {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            RecipeAppScreen(Modifier.padding(innerPadding))
+            RecipesScreen(
+                onNavigateToShoppingListButton = {},
+                onAddRecipeButton = {},
+                Modifier.padding(innerPadding)
+            )
         }
     }
 }
@@ -230,7 +239,11 @@ fun RecipeListDarkTheme() {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            RecipeAppScreen(Modifier.padding(innerPadding))
+            RecipesScreen(
+                onNavigateToShoppingListButton = {},
+                onAddRecipeButton = {},
+                Modifier.padding(innerPadding)
+            )
         }
     }
 }

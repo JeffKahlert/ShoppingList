@@ -69,7 +69,8 @@ import com.example.einkaufsliste.ui.viewmodel.ShoppingListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShoppingListApp(
+fun ShoppingListScreen(
+    onNavigateToRecipesButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -80,6 +81,7 @@ fun ShoppingListApp(
             modifier = Modifier.weight(0.1f)
         ) {
             ShoppingAppTopBar(
+                onNavigateToRecipesButton = onNavigateToRecipesButton,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -277,6 +279,7 @@ fun ItemInformation(
 
 @Composable
 fun ShoppingAppTopBar(
+    onNavigateToRecipesButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -293,7 +296,7 @@ fun ShoppingAppTopBar(
 
         Spacer(Modifier.weight(1f))
         Button(
-            onClick = {},
+            onClick = onNavigateToRecipesButton,
             modifier = Modifier
                 .padding(end = 16.dp)
                 .align(Alignment.CenterVertically),
@@ -389,7 +392,10 @@ fun ShoppingListAppPreviewLight() {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            ShoppingListApp(Modifier.padding(innerPadding))
+            ShoppingListScreen(
+                onNavigateToRecipesButton = {},
+                Modifier.padding(innerPadding)
+            )
         }
     }
 }
@@ -401,7 +407,10 @@ fun ShoppingListAppPreviewDark() {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            ShoppingListApp(Modifier.padding(innerPadding))
+            ShoppingListScreen(
+                onNavigateToRecipesButton = {},
+                Modifier.padding(innerPadding)
+            )
         }
     }
 }

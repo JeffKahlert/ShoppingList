@@ -7,12 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.einkaufsliste.ui.screen.AddRecipeScreen
-import com.example.einkaufsliste.ui.screen.ShoppingListApp
+import com.example.einkaufsliste.ui.navigation.AppNavHost
+import com.example.einkaufsliste.ui.screen.ShoppingApp
+import com.example.einkaufsliste.ui.screen.ShoppingListScreen
 import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,10 +20,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             EinkaufslisteTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    /*ShoppingListApp(
+                    /*ShoppingListScreen(
+                        onNavigateToRecipesButton = {  },
                         modifier = Modifier.padding(innerPadding)
                     )*/
-                    AddRecipeScreen(modifier = Modifier.padding(innerPadding))
+                   ShoppingApp(Modifier.padding(innerPadding))
                 }
             }
         }

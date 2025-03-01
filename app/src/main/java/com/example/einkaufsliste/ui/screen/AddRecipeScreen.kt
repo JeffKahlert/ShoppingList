@@ -1,20 +1,17 @@
 package com.example.einkaufsliste.ui.screen
 
-import android.widget.Space
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,6 +37,7 @@ import kotlinx.coroutines.flow.map
 
 @Composable
 fun AddRecipeScreen(
+    onCancelButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel: AddRecipeViewModel = viewModel()
@@ -60,7 +57,9 @@ fun AddRecipeScreen(
 
         }
         Spacer(Modifier.weight(1f))
-        SaveAndCancelButtons()
+        SaveAndCancelButtons(
+            onCancelButton = onCancelButton,
+        )
     }
 
 }
@@ -131,7 +130,7 @@ fun AddRecipeTopBar(
         }
         Spacer(Modifier.weight(1f))
         Text(
-            text = stringResource(R.string.recipe),
+            text = stringResource(R.string.recipes),
             style = MaterialTheme.typography.displayLarge,
             modifier = Modifier
                 .padding(16.dp)
@@ -173,6 +172,7 @@ fun AddRecipeTopBar(
 
 @Composable
 fun SaveAndCancelButtons(
+    onCancelButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -186,7 +186,7 @@ fun SaveAndCancelButtons(
             modifier = Modifier.weight(0.5f)
         ) {
             Button(
-                onClick = {},
+                onClick = onCancelButton,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(dimensionResource(R.dimen.padding_small)),
@@ -225,7 +225,10 @@ fun AddRecipeScreenDarkTheme() {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            AddRecipeScreen(Modifier.padding(innerPadding))
+            AddRecipeScreen(
+                onCancelButton = {},
+                Modifier.padding(innerPadding)
+            )
         }
     }
 }
@@ -237,7 +240,10 @@ fun AddRecipeScreenLightTheme() {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            AddRecipeScreen(Modifier.padding(innerPadding))
+            AddRecipeScreen(
+                onCancelButton = {},
+                Modifier.padding(innerPadding)
+            )
         }
     }
 }

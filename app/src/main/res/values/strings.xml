@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Einkaufsliste</string>
     <string name="list">Liste</string>
-    <string name="recipe">Rezepte</string>
+    <string name="recipes">Rezepte</string>
     <string name="add">Hinzufügen</string>
     <string name="list_page_title">Einkaufsliste</string>
     <string name="recipe_page_title">Rezepte</string>
