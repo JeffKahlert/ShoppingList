@@ -1,4 +1,4 @@
-package com.example.einkaufsliste.ui.viewmodel
+package com.example.einkaufsliste.ui.recipe
 
 import androidx.lifecycle.ViewModel
 

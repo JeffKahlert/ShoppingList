@@ -1,7 +1,6 @@
-package com.example.einkaufsliste.ui.viewmodel
+package com.example.einkaufsliste.ui.recipe
 
 import androidx.lifecycle.ViewModel
-import com.example.einkaufsliste.data.AddRecipeUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -9,8 +8,8 @@ import kotlinx.coroutines.flow.update
 
 class AddRecipeViewModel : ViewModel() {
 
-    private val _addRecipeUiState = MutableStateFlow(AddRecipeUiState())
-    val addRecipeUiState: StateFlow<AddRecipeUiState> = _addRecipeUiState.asStateFlow()
+    private val _addRecipeUiState = MutableStateFlow(RecipeAddUiState())
+    val addRecipeUiState: StateFlow<RecipeAddUiState> = _addRecipeUiState.asStateFlow()
 
     fun updateNameTextFieldValue(name: String) {
         _addRecipeUiState.update { currentUiState ->

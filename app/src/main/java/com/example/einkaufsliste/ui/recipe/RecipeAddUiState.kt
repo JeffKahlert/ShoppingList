@@ -1,6 +1,6 @@
-package com.example.einkaufsliste.data
+package com.example.einkaufsliste.ui.recipe
 
-data class AddRecipeUiState(
+data class RecipeAddUiState(
     val name: String = "",
     val ingredient: String = "",
     val instruction: String = "",

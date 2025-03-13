@@ -1,15 +1,15 @@
 package com.example.einkaufsliste.data
 
-import com.example.einkaufsliste.model.DumbItem
-import com.example.einkaufsliste.model.Recipe
+import com.example.einkaufsliste.data.model.Item
+import com.example.einkaufsliste.data.model.Recipe
 
 object DataSource {
     val dumbItems = listOf(
-        DumbItem("Apfel", "2 Stück"),
-        DumbItem("Bananen", "3 Stück"),
-        DumbItem("Schwarzer Tee", ""),
-        DumbItem("Frühstück", "Aufschnitt"),
-        DumbItem("Waschmittel", "Ariel")
+        Item("Apfel", "2 Stück"),
+        Item("Bananen", "3 Stück"),
+        Item("Schwarzer Tee", ""),
+        Item("Frühstück", "Aufschnitt"),
+        Item("Waschmittel", "Ariel")
     )
 
     val dumbRecipes = listOf(

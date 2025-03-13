@@ -1,4 +1,4 @@
-package com.example.einkaufsliste.ui.screen
+package com.example.einkaufsliste.ui.recipe
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,10 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.einkaufsliste.R
 import com.example.einkaufsliste.data.DataSource.dumbRecipes
-import com.example.einkaufsliste.model.Recipe
+import com.example.einkaufsliste.data.model.Recipe
 import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
-import com.example.einkaufsliste.ui.viewmodel.RecipeViewModel
 
 /**
  * Boilerplate code from ShoppingListScreen. Need take care of it sometime

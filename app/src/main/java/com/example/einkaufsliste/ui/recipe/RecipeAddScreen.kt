@@ -1,4 +1,4 @@
-package com.example.einkaufsliste.ui.screen
+package com.example.einkaufsliste.ui.recipe
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,12 +32,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.einkaufsliste.R
 import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
-import com.example.einkaufsliste.ui.viewmodel.AddRecipeViewModel
 import kotlinx.coroutines.flow.map
 
 @Composable
-fun AddRecipeScreen(
+fun RecipeAddScreen(
     onCancelButton: () -> Unit,
+    onBackButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel: AddRecipeViewModel = viewModel()
@@ -45,7 +45,9 @@ fun AddRecipeScreen(
     Column(
         modifier = modifier
     ) {
-        AddRecipeTopBar()
+        AddRecipeTopBar(
+            onBackButton = onBackButton
+        )
         HorizontalDivider(thickness = 2.dp)
         Column(
             modifier = Modifier
@@ -115,13 +117,16 @@ fun checkInput(field: String, value: String, viewModel: AddRecipeViewModel) {
 
 @Composable
 fun AddRecipeTopBar(
+    onBackButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = {}) {
+        IconButton(
+            onClick = onBackButton
+        ) {
             Icon(
                 imageVector = Icons.Filled.ArrowBack,
                 contentDescription = "",
@@ -225,8 +230,9 @@ fun AddRecipeScreenDarkTheme() {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            AddRecipeScreen(
+            RecipeAddScreen(
                 onCancelButton = {},
+                onBackButton = {},
                 Modifier.padding(innerPadding)
             )
         }
@@ -240,8 +246,9 @@ fun AddRecipeScreenLightTheme() {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            AddRecipeScreen(
+            RecipeAddScreen(
                 onCancelButton = {},
+                onBackButton = {},
                 Modifier.padding(innerPadding)
             )
         }

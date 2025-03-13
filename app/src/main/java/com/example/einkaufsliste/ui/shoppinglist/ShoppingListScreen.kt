@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.example.einkaufsliste.ui.screen
+package com.example.einkaufsliste.ui.shoppinglist
 
 
 import android.widget.Toast
@@ -39,7 +39,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,10 +57,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.einkaufsliste.R
-import com.example.einkaufsliste.model.DumbItem
+import com.example.einkaufsliste.data.model.Item
 import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
-import com.example.einkaufsliste.ui.viewmodel.ShoppingListViewModel
 
 /**
  * todo: Refactor
@@ -88,13 +86,13 @@ fun ShoppingListScreen(
         Box(
             modifier = Modifier.weight(0.9f)
         ) {
-            ShoppingList()
+            ShoppingListBody()
         }
     }
 }
 
 @Composable
-fun ShoppingList(
+fun ShoppingListBody(
     modifier: Modifier = Modifier
 ) {
     val sheetState = rememberModalBottomSheetState()
@@ -103,7 +101,7 @@ fun ShoppingList(
     var info by remember { mutableStateOf("") }
 
     val viewModel: ShoppingListViewModel = viewModel()
-    val uiState by viewModel.shoppingListUiState.collectAsState()
+    //val uiState by viewModel.shoppingListUiState.collectAsState()
 
     val articleFocusRequester = remember { FocusRequester() }
     val infoFocusRequester = remember { FocusRequester() }
@@ -111,23 +109,20 @@ fun ShoppingList(
     val context = LocalContext.current
 
     Column {
-        //Spacer(Modifier.padding(bottom = 8.dp))
         Box(
             modifier = Modifier.weight(0.9f)
         ) {
             LazyColumn(
             ) {
                 itemsIndexed(
-                    items = uiState.items,
+                    items = viewModel.shoppingListUiState.items,
                     key = { _, item -> item.hashCode()}
                 ) { _ , currentItem ->
                     SwipeToDeleteContainer(currentItem, onDelete = viewModel::removeItem)
                 }
             }
         }
-        Box(
-            modifier = Modifier.weight(0.1f)
-        ) {
+        Box {
             Button(
                 shape = Shapes.medium,
                 onClick = { showBottomSheet = viewModel.onAddClicked(showBottomSheet) },
@@ -158,8 +153,12 @@ fun ShoppingList(
                 Text("Artikel hinzufügen", style = MaterialTheme.typography.displayLarge)
                 Spacer(Modifier.padding(8.dp))
                 OutlinedTextField(
-                    value = article,
-                    onValueChange = { article = it },
+                    value = viewModel.shoppingListUiState.sheetItem.name,
+                    onValueChange = {
+                        article = it
+                        viewModel.updateBottomSheetUiState(
+                        ItemDetails(name = it, description = info)
+                    ) },
                     label = { Text("Artikel")},
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction =  ImeAction.Next
@@ -173,15 +172,20 @@ fun ShoppingList(
                 )
                 Spacer(Modifier.padding(8.dp))
                 OutlinedTextField(
-                    value = info,
-                    onValueChange = { info = it },
+                    value = viewModel.shoppingListUiState.sheetItem.description,
+                    onValueChange = {
+                        info = it
+                        viewModel.updateBottomSheetUiState(
+                        ItemDetails(name = article, description = it)
+                    ) },
                     label = { Text("Info -> Optional")},
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            viewModel.addItemsToListClicked(article, info)
+                            viewModel.addItemUpdateUiState(ItemDetails(article, info))
+                            //viewModel.addItemsToListClicked(article, info)
                             showBottomSheet = !showBottomSheet
                             article = ""
                             info = ""
@@ -193,7 +197,8 @@ fun ShoppingList(
 
                 Button(
                     onClick = {
-                        viewModel.addItemsToListClicked(article, info)
+                        viewModel.addItemUpdateUiState(ItemDetails(article, info))
+                        //viewModel.addItemsToListClicked(article, info)
                         showBottomSheet = !showBottomSheet
                         article = ""
                         info = ""
@@ -212,16 +217,16 @@ fun ShoppingList(
         }
     }
 
-    uiState.message?.let { message ->
+    /*uiState.message?.let { message ->
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         viewModel.clearMessage()
-    }
+    }*/
 }
 
 
 @Composable
 fun Item(
-    item: DumbItem,
+    item: Item,
     modifier: Modifier = Modifier,
 ) {
     Box {
@@ -334,8 +339,8 @@ fun BottomSheet(bottomSheetVisible: String) {
 
 @Composable
 fun SwipeToDeleteContainer(
-    item: DumbItem,
-    onDelete: (DumbItem) -> Unit,
+    item: Item,
+    onDelete: (Item) -> Unit,
 ) {
     val context = LocalContext.current
     val currentItem by rememberUpdatedState(item)

@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.example.einkaufsliste.ui.navigation.AppNavHost
-import com.example.einkaufsliste.ui.screen.ShoppingApp
-import com.example.einkaufsliste.ui.screen.ShoppingListScreen
-import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 
+import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
+import dagger.hilt.android.AndroidEntryPoint
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,11 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             EinkaufslisteTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    /*ShoppingListScreen(
-                        onNavigateToRecipesButton = {  },
-                        modifier = Modifier.padding(innerPadding)
-                    )*/
-                   ShoppingApp(Modifier.padding(innerPadding))
+                   ShoppingListApp(modifier = Modifier.padding(innerPadding))
                 }
             }
         }

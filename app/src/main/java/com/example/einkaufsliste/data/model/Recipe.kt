@@ -1,4 +1,4 @@
-package com.example.einkaufsliste.model
+package com.example.einkaufsliste.data.model
 
 data class Recipe(
     val name: String = "",
