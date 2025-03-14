@@ -3,7 +3,6 @@ package com.example.einkaufsliste.data.internal
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.Query
 import androidx.room.Update
 import com.example.einkaufsliste.data.model.Item
 
@@ -14,9 +13,9 @@ interface ItemDAO {
     suspend fun insertItem(item: Item)
 
     @Update
-    suspend fun update(item: Item)
+    suspend fun updateItem(item: Item)
 
     @Delete
-    suspend fun delete(item: Item)
+    suspend fun deleteItem(item: Item)
 
 }

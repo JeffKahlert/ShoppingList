@@ -3,6 +3,7 @@
 package com.example.einkaufsliste.ui.shoppinglist
 
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -42,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,22 +57,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.einkaufsliste.R
 import com.example.einkaufsliste.data.model.Item
 import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
+import kotlinx.coroutines.launch
 
 /**
  * todo: Refactor
  */
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingListScreen(
     onNavigateToRecipesButton: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ShoppingListViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = modifier
     ) {
@@ -86,46 +91,46 @@ fun ShoppingListScreen(
         Box(
             modifier = Modifier.weight(0.9f)
         ) {
-            ShoppingListBody()
+            ShoppingListBody(
+                itemUiState = viewModel.shoppingListUiState,
+                onShowBottomSheet = viewModel::changeBottomSheetUiState,
+                onSaveClick = {
+                    coroutineScope.launch {
+                        viewModel.saveItem()
+                    }
+                },
+                onSheetItemValueChange = viewModel::updateBottomSheetUiState
+            )
         }
     }
 }
 
 @Composable
 fun ShoppingListBody(
+    itemUiState: ShoppingListUiState,
+    onShowBottomSheet: (Boolean) -> Unit,
+    onSheetItemValueChange: (ItemDetails) -> Unit,
+    onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
-    var article by remember { mutableStateOf("") }
-    var info by remember { mutableStateOf("") }
-
-    val viewModel: ShoppingListViewModel = viewModel()
-    //val uiState by viewModel.shoppingListUiState.collectAsState()
-
-    val articleFocusRequester = remember { FocusRequester() }
-    val infoFocusRequester = remember { FocusRequester() }
-
-    val context = LocalContext.current
-
     Column {
         Box(
             modifier = Modifier.weight(0.9f)
         ) {
             LazyColumn(
             ) {
-                itemsIndexed(
+                /*itemsIndexed(
                     items = viewModel.shoppingListUiState.items,
                     key = { _, item -> item.hashCode()}
                 ) { _ , currentItem ->
                     SwipeToDeleteContainer(currentItem, onDelete = viewModel::removeItem)
-                }
+                }*/
             }
         }
         Box {
             Button(
                 shape = Shapes.medium,
-                onClick = { showBottomSheet = viewModel.onAddClicked(showBottomSheet) },
+                onClick = { onShowBottomSheet(itemUiState.isBottomSheetVisible) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(dimensionResource(R.dimen.padding_medium))
@@ -137,90 +142,104 @@ fun ShoppingListBody(
             }
         }
     }
-
-    if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                showBottomSheet = false
-            },
-            sheetState = sheetState,
-        )  {
-            Column(
-                modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_medium))
-                    .imePadding()
-            ) {
-                Text("Artikel hinzufügen", style = MaterialTheme.typography.displayLarge)
-                Spacer(Modifier.padding(8.dp))
-                OutlinedTextField(
-                    value = viewModel.shoppingListUiState.sheetItem.name,
-                    onValueChange = {
-                        article = it
-                        viewModel.updateBottomSheetUiState(
-                        ItemDetails(name = it, description = info)
-                    ) },
-                    label = { Text("Artikel")},
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction =  ImeAction.Next
-                    ),
-                    keyboardActions =  KeyboardActions(
-                        onNext = {
-                            infoFocusRequester.requestFocus()
-                        }
-                    ),
-                    modifier = Modifier.focusRequester(articleFocusRequester)
-                )
-                Spacer(Modifier.padding(8.dp))
-                OutlinedTextField(
-                    value = viewModel.shoppingListUiState.sheetItem.description,
-                    onValueChange = {
-                        info = it
-                        viewModel.updateBottomSheetUiState(
-                        ItemDetails(name = article, description = it)
-                    ) },
-                    label = { Text("Info -> Optional")},
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            viewModel.addItemUpdateUiState(ItemDetails(article, info))
-                            //viewModel.addItemsToListClicked(article, info)
-                            showBottomSheet = !showBottomSheet
-                            article = ""
-                            info = ""
-                        }
-                    ),
-                    modifier = Modifier.focusRequester(infoFocusRequester)
-                )
-                Spacer(Modifier.padding(8.dp))
-
-                Button(
-                    onClick = {
-                        viewModel.addItemUpdateUiState(ItemDetails(article, info))
-                        //viewModel.addItemsToListClicked(article, info)
-                        showBottomSheet = !showBottomSheet
-                        article = ""
-                        info = ""
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    enabled = article.isNotEmpty()
-                ) {
-                    Text(
-                        text = stringResource(R.string.add),
-                        style = MaterialTheme.typography.displayMedium
-                    )
-                }
-            }
-        }
+    if (itemUiState.isBottomSheetVisible) {
+        BottomModalSheet(
+            uiState = itemUiState,
+            itemDetails = itemUiState.sheetItem,
+            onShowBottomSheet = onShowBottomSheet,
+            onSheetItemValueChange = onSheetItemValueChange,
+            onSaveClick = onSaveClick
+        )
     }
-
     /*uiState.message?.let { message ->
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         viewModel.clearMessage()
     }*/
+}
+
+@Composable
+fun BottomModalSheet(
+    uiState: ShoppingListUiState,
+    itemDetails: ItemDetails,
+    onShowBottomSheet: (Boolean) -> Unit,
+    onSheetItemValueChange: (ItemDetails) -> Unit = {},
+    onSaveClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    val articleFocusRequester = remember { FocusRequester() }
+    val infoFocusRequester = remember { FocusRequester() }
+
+    ModalBottomSheet(
+        onDismissRequest = {
+            showBottomSheet = false
+            onShowBottomSheet(uiState.isBottomSheetVisible)
+        },
+        sheetState = sheetState,
+    )  {
+        Column(
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.padding_medium))
+                .imePadding()
+        ) {
+            Text("Artikel hinzufügen", style = MaterialTheme.typography.displayLarge)
+            Spacer(Modifier.padding(8.dp))
+            OutlinedTextField(
+                value = itemDetails.name,
+                onValueChange = {
+                    onSheetItemValueChange(itemDetails.copy(name = it))
+                    Log.d("EINGABE", itemDetails.name)
+                },
+                label = { Text("Artikel")},
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction =  ImeAction.Next
+                ),
+                keyboardActions =  KeyboardActions(
+                    onNext = {
+                        infoFocusRequester.requestFocus()
+                    }
+                ),
+                modifier = Modifier.focusRequester(articleFocusRequester)
+            )
+            Spacer(Modifier.padding(8.dp))
+
+            OutlinedTextField(
+                value = itemDetails.description,
+                onValueChange = { onSheetItemValueChange(itemDetails.copy(description = it))},
+                label = { Text("Info -> Optional")},
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        //onSaveClick()
+                        //onShowBottomSheet(uiState.isBottomSheetVisible)
+                    }
+                ),
+                modifier = Modifier.focusRequester(infoFocusRequester)
+            )
+            Spacer(Modifier.padding(8.dp))
+
+            Button(
+                onClick = {
+                    //onSaveClick()
+                    //onShowBottomSheet(uiState.isBottomSheetVisible)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                enabled = uiState.isEntryValid
+            ) {
+                Text(
+                    text = stringResource(R.string.add),
+                    style = MaterialTheme.typography.displayMedium
+                )
+            }
+        }
+    }
+
 }
 
 
