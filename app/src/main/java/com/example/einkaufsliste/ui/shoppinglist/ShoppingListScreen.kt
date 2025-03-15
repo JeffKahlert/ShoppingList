@@ -5,7 +5,10 @@ package com.example.einkaufsliste.ui.shoppinglist
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -38,6 +42,7 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
@@ -53,10 +58,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -228,7 +236,7 @@ fun BottomModalSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                enabled = uiState.isEntryValid
+                enabled = uiState.isEntryValid,
             ) {
                 Text(
                     text = stringResource(R.string.add),
@@ -237,26 +245,48 @@ fun BottomModalSheet(
             }
         }
     }
-
 }
 
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Item(
     item: Item,
+    isItemChecked: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    var longClicked by remember { mutableStateOf(false) }
+    var clicked by remember { mutableStateOf(false) }
+
     Box {
         Card(
-            modifier = Modifier.padding(
+            modifier = Modifier
+                .combinedClickable(
+                    onClick = {
+                        Log.e("CLICKED", "Long Short Button")
+                        clicked = true
+                    },
+                    onLongClick = {
+                        Log.e("CLICKED", "Long Pressed Button")
+                        longClicked = true
+                    }
+                )
+                .padding(
                 start = dimensionResource(R.dimen.padding_medium),
                 end = dimensionResource(R.dimen.padding_medium),
-                top = dimensionResource(R.dimen.padding_medium)
+                top = dimensionResource(R.dimen.padding_small),
+                bottom = dimensionResource(R.dimen.padding_small)
             ),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                contentColor = MaterialTheme.colorScheme.primary
-            ),
+            colors = if (isItemChecked) {
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            } else {
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
+            },
             shape = Shapes.medium
         ) {
             Row(
@@ -265,8 +295,9 @@ fun Item(
                     .padding(dimensionResource(R.dimen.padding_medium)),
             ) {
                 ItemInformation(
-                    item.name,
-                    item.description,
+                    name = item.name,
+                    information = item.description,
+                    isItemChecked = isItemChecked,
                     modifier = Modifier.padding(start = 4.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -276,24 +307,31 @@ fun Item(
     }
 }
 
+
 @Composable
 fun ItemInformation(
     name: String,
     information: String?,
+    isItemChecked: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
     ) {
+        val nameTextStyle = MaterialTheme.typography.displayMedium.copy(
+            textDecoration = if (isItemChecked) TextDecoration.LineThrough else TextDecoration.None
+        )
+
         Text(
             text = name,
-            style = MaterialTheme.typography.displayMedium,
+            style = nameTextStyle
         )
-        if (information != null) {
+
+        if (!isItemChecked && information != null) {
             Text(
                 text = information,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge
             )
         }
     }
@@ -320,6 +358,7 @@ fun SwipeToDeleteContainer(
     item: Item,
     onDelete: (Item) -> Unit = {},
 ) {
+    var isItemChecked by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val currentItem by rememberUpdatedState(item)
     val dismissState = rememberSwipeToDismissBoxState(
@@ -328,6 +367,9 @@ fun SwipeToDeleteContainer(
                 onDelete(currentItem)
                 Toast.makeText(context, "Artikel entfernt", Toast.LENGTH_SHORT).show()
                 true
+            } else if(it == SwipeToDismissBoxValue.StartToEnd) {
+                isItemChecked = true
+                false
             } else {
                 false
             }
@@ -339,7 +381,7 @@ fun SwipeToDeleteContainer(
         modifier = Modifier,
         backgroundContent = { DeleteBackground(dismissState) },
         content = {
-            Item(item)
+            Item(item, isItemChecked)
         }
     )
 }
@@ -349,7 +391,7 @@ fun DeleteBackground(
     swipeDismissState: SwipeToDismissBoxState
 ) {
     val color = if(swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-        Color.Transparent
+        Color.Red
     } else {
         Color.Transparent
     }
@@ -363,9 +405,47 @@ fun DeleteBackground(
         Icon(
             imageVector = Icons.Default.Delete,
             contentDescription = "",
-            tint = Color.Red
+            tint = Color.Black
         )
     }
+}
+
+@Composable
+fun AlertDialogExample(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    AlertDialog(
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss")
+            }
+        }
+    )
 }
 
 @Composable

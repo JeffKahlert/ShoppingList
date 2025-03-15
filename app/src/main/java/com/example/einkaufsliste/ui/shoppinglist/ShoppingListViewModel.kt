@@ -23,7 +23,6 @@ class ShoppingListViewModel @Inject constructor(
     var bottomSheetUiState by mutableStateOf(BottomSheetUiState())
         private set
 
-
     val shoppingListUiState: StateFlow<ShoppingListUiState> =
         itemRepository.getAllItemsStream().map { ShoppingListUiState(it) }
             .stateIn(
@@ -37,13 +36,7 @@ class ShoppingListViewModel @Inject constructor(
             BottomSheetUiState(isBottomSheetVisible = !sheetState)
     }
 
-    /*fun removeItem(currentItem: Item) {
-       bottomSheetUiState =
-           bottomSheetUiState(items = bottomSheetUiState.items - currentItem)
-   }*/
-
     suspend fun removeItem(item: Item) {
-        Log.e("DELETEITEM", item.id.toString())
         itemRepository.deleteItem(item)
     }
 
@@ -55,7 +48,6 @@ class ShoppingListViewModel @Inject constructor(
                 isEntryValid = validateInput(itemDetails)
             )
     }
-
 
     suspend fun saveItem() {
         if (validateInput()) {
@@ -82,9 +74,7 @@ data class ShoppingListUiState(
     val items: List<Item> = emptyList(),
     val checkedItems: List<Item> = emptyList(),
     val message: String? = null,
-    val itemToDelete: ItemDetails = ItemDetails()
 )
-
 
 data class ItemDetails(
     val id: Int = 0,
