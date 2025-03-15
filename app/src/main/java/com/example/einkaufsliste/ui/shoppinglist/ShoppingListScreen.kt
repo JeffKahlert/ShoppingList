@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,6 +77,7 @@ fun ShoppingListScreen(
     viewModel: ShoppingListViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val shoppingListUiState by viewModel.shoppingListUiState.collectAsState()
 
     Column(
         modifier = modifier
@@ -92,11 +95,15 @@ fun ShoppingListScreen(
             modifier = Modifier.weight(0.9f)
         ) {
             ShoppingListBody(
-                itemUiState = viewModel.shoppingListUiState,
+                shoppingListItems = shoppingListUiState.items,
+                bottomItemUiState = viewModel.bottomSheetUiState,
                 onShowBottomSheet = viewModel::changeBottomSheetUiState,
                 onSaveClick = {
                     coroutineScope.launch {
                         viewModel.saveItem()
+                        viewModel.changeBottomSheetUiState(
+                            viewModel.bottomSheetUiState.isBottomSheetVisible
+                        )
                     }
                 },
                 onSheetItemValueChange = viewModel::updateBottomSheetUiState
@@ -107,7 +114,8 @@ fun ShoppingListScreen(
 
 @Composable
 fun ShoppingListBody(
-    itemUiState: ShoppingListUiState,
+    shoppingListItems: List<Item>,
+    bottomItemUiState: BottomSheetUiState,
     onShowBottomSheet: (Boolean) -> Unit,
     onSheetItemValueChange: (ItemDetails) -> Unit,
     onSaveClick: () -> Unit,
@@ -119,6 +127,17 @@ fun ShoppingListBody(
         ) {
             LazyColumn(
             ) {
+                Log.e("EMPTYLIST", shoppingListItems.isEmpty().toString())
+                items(items = shoppingListItems, key = { it.id }){ item ->
+                    SwipeToDeleteContainer(item, onDelete = {})
+                }
+                /*itemsIndexed(
+                    items = shoppingListItems,
+                    key = { _, item -> item.id}
+                ) { _ , currentItem ->
+                    SwipeToDeleteContainer(currentItem, onDelete = {  }) //viewModel::removeItem
+                }*/
+
                 /*itemsIndexed(
                     items = viewModel.shoppingListUiState.items,
                     key = { _, item -> item.hashCode()}
@@ -130,7 +149,7 @@ fun ShoppingListBody(
         Box {
             Button(
                 shape = Shapes.medium,
-                onClick = { onShowBottomSheet(itemUiState.isBottomSheetVisible) },
+                onClick = { onShowBottomSheet(bottomItemUiState.isBottomSheetVisible) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(dimensionResource(R.dimen.padding_medium))
@@ -142,10 +161,10 @@ fun ShoppingListBody(
             }
         }
     }
-    if (itemUiState.isBottomSheetVisible) {
+    if (bottomItemUiState.isBottomSheetVisible) {
         BottomModalSheet(
-            uiState = itemUiState,
-            itemDetails = itemUiState.sheetItem,
+            uiState = bottomItemUiState,
+            itemDetails = bottomItemUiState.itemDetails,
             onShowBottomSheet = onShowBottomSheet,
             onSheetItemValueChange = onSheetItemValueChange,
             onSaveClick = onSaveClick
@@ -159,7 +178,7 @@ fun ShoppingListBody(
 
 @Composable
 fun BottomModalSheet(
-    uiState: ShoppingListUiState,
+    uiState: BottomSheetUiState,
     itemDetails: ItemDetails,
     onShowBottomSheet: (Boolean) -> Unit,
     onSheetItemValueChange: (ItemDetails) -> Unit = {},
@@ -188,10 +207,7 @@ fun BottomModalSheet(
             Spacer(Modifier.padding(8.dp))
             OutlinedTextField(
                 value = itemDetails.name,
-                onValueChange = {
-                    onSheetItemValueChange(itemDetails.copy(name = it))
-                    Log.d("EINGABE", itemDetails.name)
-                },
+                onValueChange = { onSheetItemValueChange(itemDetails.copy(name = it)) },
                 label = { Text("Artikel")},
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction =  ImeAction.Next
@@ -214,7 +230,7 @@ fun BottomModalSheet(
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        //onSaveClick()
+                        onSaveClick()
                         //onShowBottomSheet(uiState.isBottomSheetVisible)
                     }
                 ),
@@ -224,7 +240,7 @@ fun BottomModalSheet(
 
             Button(
                 onClick = {
-                    //onSaveClick()
+                    onSaveClick()
                     //onShowBottomSheet(uiState.isBottomSheetVisible)
                 },
                 modifier = Modifier

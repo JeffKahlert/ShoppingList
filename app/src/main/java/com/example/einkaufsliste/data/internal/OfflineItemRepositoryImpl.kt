@@ -9,7 +9,7 @@ class OfflineItemRepositoryImpl @Inject constructor(
     private val itemDAO: ItemDAO
 ) : ItemRepository {
 
-    override fun getAllItemsStream(): Flow<List<Item>> = emptyFlow()
+    override fun getAllItemsStream(): Flow<List<Item>> = itemDAO.getAllItems()
 
     override fun getItemStream(id: Int): Flow<Item?> = emptyFlow()
 

@@ -5,10 +5,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.einkaufsliste.data.internal.ItemRepository
 import com.example.einkaufsliste.data.model.Item
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -16,43 +20,45 @@ class ShoppingListViewModel @Inject constructor(
     private val itemRepository: ItemRepository
 ) : ViewModel() {
 
-    var shoppingListUiState by mutableStateOf(ShoppingListUiState())
+    var bottomSheetUiState by mutableStateOf(BottomSheetUiState())
         private set
 
-    fun onAddClicked(showSheet: Boolean): Boolean {
-        return !showSheet ;
-    }
+
+    val shoppingListUiState: StateFlow<ShoppingListUiState> =
+        itemRepository.getAllItemsStream().map { ShoppingListUiState(it) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000L),
+                initialValue = ShoppingListUiState()
+            )
 
     fun changeBottomSheetUiState(sheetState: Boolean) {
-        shoppingListUiState =
-            ShoppingListUiState(isBottomSheetVisible = !sheetState)
+        bottomSheetUiState =
+            BottomSheetUiState(isBottomSheetVisible = !sheetState)
     }
 
-    fun addItemUpdateUiState(itemDetails: ItemDetails) {
-        shoppingListUiState =
-            ShoppingListUiState(
-                items = shoppingListUiState.items + Item(
-                    name = itemDetails.name, description = itemDetails.description
-                )
+    /*fun removeItem(currentItem: Item) {
+       bottomSheetUiState =
+           bottomSheetUiState(items = bottomSheetUiState.items - currentItem)
+   }*/
+
+    fun updateBottomSheetUiState(itemDetails: ItemDetails) {
+        bottomSheetUiState =
+            BottomSheetUiState(
+                itemDetails = itemDetails,
+                isBottomSheetVisible = true,
+                isEntryValid = validateInput(itemDetails)
             )
     }
 
-    fun removeItem(currentItem: Item) {
-       shoppingListUiState =
-           ShoppingListUiState(items = shoppingListUiState.items - currentItem)
-   }
-
-    fun updateBottomSheetUiState(itemDetails: ItemDetails) {
-        Log.e("TAG", "IN DER METHODE updateBottomSheetUiState")
-        shoppingListUiState =
-            shoppingListUiState.copy(sheetItem = itemDetails, isEntryValid = validateInput(itemDetails))
-    }
 
     suspend fun saveItem() {
-        itemRepository.insertItem(shoppingListUiState.itemDetails.toItem())
+        if (validateInput()) {
+            itemRepository.insertItem(bottomSheetUiState.itemDetails.toItem())
+        }
     }
 
-    private fun validateInput(uiState: ItemDetails = shoppingListUiState.itemDetails): Boolean {
+    private fun validateInput(uiState: ItemDetails = bottomSheetUiState.itemDetails): Boolean {
         return with(uiState) {
             name.isNotBlank()
         }
@@ -63,14 +69,17 @@ class ShoppingListViewModel @Inject constructor(
     }*/
 }
 
+data class BottomSheetUiState(
+    val itemDetails: ItemDetails = ItemDetails(),
+    val isBottomSheetVisible: Boolean = false,
+    val isEntryValid: Boolean = false
+)
+
+
 data class ShoppingListUiState(
     val items: List<Item> = emptyList(),
     val checkedItems: List<Item> = emptyList(),
     val message: String? = null,
-    val itemDetails: ItemDetails = ItemDetails(),
-    val sheetItem: ItemDetails = ItemDetails(),
-    val isBottomSheetVisible: Boolean = false,
-    val isEntryValid: Boolean = false
 )
 
 
