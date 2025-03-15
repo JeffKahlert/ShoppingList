@@ -42,6 +42,11 @@ class ShoppingListViewModel @Inject constructor(
            bottomSheetUiState(items = bottomSheetUiState.items - currentItem)
    }*/
 
+    suspend fun removeItem(item: Item) {
+        Log.e("DELETEITEM", item.id.toString())
+        itemRepository.deleteItem(item)
+    }
+
     fun updateBottomSheetUiState(itemDetails: ItemDetails) {
         bottomSheetUiState =
             BottomSheetUiState(
@@ -64,9 +69,6 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
-    /*fun clearMessage() {
-        shoppingListUiState.update { it.copy(message = null) }
-    }*/
 }
 
 data class BottomSheetUiState(
@@ -80,6 +82,7 @@ data class ShoppingListUiState(
     val items: List<Item> = emptyList(),
     val checkedItems: List<Item> = emptyList(),
     val message: String? = null,
+    val itemToDelete: ItemDetails = ItemDetails()
 )
 
 

@@ -106,7 +106,12 @@ fun ShoppingListScreen(
                         )
                     }
                 },
-                onSheetItemValueChange = viewModel::updateBottomSheetUiState
+                onSheetItemValueChange = viewModel::updateBottomSheetUiState,
+                onSwipeToDelete = { item ->
+                    coroutineScope.launch {
+                        viewModel.removeItem(item)
+                    }
+                }
             )
         }
     }
@@ -119,6 +124,7 @@ fun ShoppingListBody(
     onShowBottomSheet: (Boolean) -> Unit,
     onSheetItemValueChange: (ItemDetails) -> Unit,
     onSaveClick: () -> Unit,
+    onSwipeToDelete: (Item) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column {
@@ -127,23 +133,9 @@ fun ShoppingListBody(
         ) {
             LazyColumn(
             ) {
-                Log.e("EMPTYLIST", shoppingListItems.isEmpty().toString())
                 items(items = shoppingListItems, key = { it.id }){ item ->
-                    SwipeToDeleteContainer(item, onDelete = {})
+                    SwipeToDeleteContainer(item, onDelete = onSwipeToDelete)
                 }
-                /*itemsIndexed(
-                    items = shoppingListItems,
-                    key = { _, item -> item.id}
-                ) { _ , currentItem ->
-                    SwipeToDeleteContainer(currentItem, onDelete = {  }) //viewModel::removeItem
-                }*/
-
-                /*itemsIndexed(
-                    items = viewModel.shoppingListUiState.items,
-                    key = { _, item -> item.hashCode()}
-                ) { _ , currentItem ->
-                    SwipeToDeleteContainer(currentItem, onDelete = viewModel::removeItem)
-                }*/
             }
         }
         Box {
@@ -170,10 +162,6 @@ fun ShoppingListBody(
             onSaveClick = onSaveClick
         )
     }
-    /*uiState.message?.let { message ->
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        viewModel.clearMessage()
-    }*/
 }
 
 @Composable
@@ -229,20 +217,14 @@ fun BottomModalSheet(
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = {
-                        onSaveClick()
-                        //onShowBottomSheet(uiState.isBottomSheetVisible)
-                    }
+                    onDone = { onSaveClick() }
                 ),
                 modifier = Modifier.focusRequester(infoFocusRequester)
             )
             Spacer(Modifier.padding(8.dp))
 
             Button(
-                onClick = {
-                    onSaveClick()
-                    //onShowBottomSheet(uiState.isBottomSheetVisible)
-                },
+                onClick = { onSaveClick() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
@@ -317,40 +299,6 @@ fun ItemInformation(
     }
 }
 
-@Composable
-fun ShoppingAppTopBar(
-    onNavigateToRecipesButton: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-    ) {
-        Text(
-            text = stringResource(R.string.list_page_title),
-            modifier = Modifier
-                .padding(start = 16.dp)
-                .align(Alignment.CenterVertically),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.displayLarge
-        )
-
-        Spacer(Modifier.weight(1f))
-        Button(
-            onClick = onNavigateToRecipesButton,
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .align(Alignment.CenterVertically),
-            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondaryContainer),
-            shape = Shapes.medium
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Menu,
-                contentDescription = "",
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-        }
-    }
-}
 
 @Composable
 fun CheckButton(
@@ -368,14 +316,9 @@ fun CheckButton(
 }
 
 @Composable
-fun BottomSheet(bottomSheetVisible: String) {
-
-}
-
-@Composable
 fun SwipeToDeleteContainer(
     item: Item,
-    onDelete: (Item) -> Unit,
+    onDelete: (Item) -> Unit = {},
 ) {
     val context = LocalContext.current
     val currentItem by rememberUpdatedState(item)
@@ -424,6 +367,42 @@ fun DeleteBackground(
         )
     }
 }
+
+@Composable
+fun ShoppingAppTopBar(
+    onNavigateToRecipesButton: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+    ) {
+        Text(
+            text = stringResource(R.string.list_page_title),
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .align(Alignment.CenterVertically),
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.displayLarge
+        )
+
+        Spacer(Modifier.weight(1f))
+        Button(
+            onClick = onNavigateToRecipesButton,
+            modifier = Modifier
+                .padding(end = 16.dp)
+                .align(Alignment.CenterVertically),
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondaryContainer),
+            shape = Shapes.medium
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Menu,
+                contentDescription = "",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
 
 @Preview
 @Composable
