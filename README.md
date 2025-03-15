@@ -16,9 +16,13 @@ Created with Jetpack Compose, Room and Hilt.
 - MVVM Architektur
 - Hilt Dagger
 
-<div style="display: flex; justify-content: space-around;">
-    <h3 style="text-align: center;">List View</h3>
-    <img src="app/screenshots/Screenshot_20250315_162543.png" alt="Screenshot 1" width="40%" />
-    <h3 style="text-align: center;">Add View</h3>
-    <img src="app/screenshots/Screenshot_20250315_162641.png" alt="Screenshot 2" width="40%" />
-</div>
+<table>
+    <tr>
+    <td><h3 style="text-align: center;">List View</h3></td>
+    <td><h3 style="text-align: center;">Add View</h3></td>
+    </tr>
+    <tr>
+    <td><img src="app/screenshots/Screenshot_20250315_162543.png" alt="Screenshot 1" width="35%" /></td>
+    <td><img src="app/screenshots/Screenshot_20250315_162641.png" alt="Screenshot 2" width="35%" /></td>
+    </tr>
+</table>
