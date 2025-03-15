@@ -22,7 +22,7 @@ Created with Jetpack Compose, Room and Hilt.
     <td><h3 style="text-align: center;">Add View</h3></td>
     </tr>
     <tr>
-    <td><img src="app/screenshots/Screenshot_20250315_162543.png" alt="Screenshot 1" width="35%" /></td>
-    <td><img src="app/screenshots/Screenshot_20250315_162641.png" alt="Screenshot 2" width="35%" /></td>
+    <td><img src="app/screenshots/Screenshot_20250315_162543.png" alt="Screenshot 1" width="45%" /></td>
+    <td><img src="app/screenshots/Screenshot_20250315_162641.png" alt="Screenshot 2" width="45%" /></td>
     </tr>
 </table>
