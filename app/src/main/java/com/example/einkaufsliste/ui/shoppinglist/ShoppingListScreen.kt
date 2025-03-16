@@ -24,14 +24,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -40,7 +38,6 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
@@ -70,9 +67,6 @@ import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
 import kotlinx.coroutines.launch
 
-/**
- * todo: Refactor
- */
 
 @Composable
 fun ShoppingListScreen(
@@ -302,7 +296,6 @@ fun Item(
                     modifier = Modifier.padding(start = 4.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                //CheckButton()
             }
         }
     }
@@ -338,29 +331,12 @@ fun ItemInformation(
     }
 }
 
-
-@Composable
-fun CheckButton(
-    modifier: Modifier = Modifier
-) {
-    IconButton(
-        onClick = {}
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Check,
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.secondary
-        )
-    }
-}
-
 @Composable
 fun SwipeContainer(
     item: Item,
     onDelete: (Item) -> Unit = {},
     onCheck: (Item) -> Unit = {},
 ) {
-    //var isItemChecked by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val currentItem by rememberUpdatedState(item)
     val dismissState = rememberSwipeToDismissBoxState(
@@ -370,7 +346,6 @@ fun SwipeContainer(
                 Toast.makeText(context, "Artikel entfernt", Toast.LENGTH_SHORT).show()
                 true
             } else if(it == SwipeToDismissBoxValue.StartToEnd) {
-                //isItemChecked = true
                 onCheck(currentItem.copy(isChecked = 1))
                 false
             } else {
@@ -382,7 +357,7 @@ fun SwipeContainer(
     SwipeToDismissBox(
         state = dismissState,
         modifier = Modifier,
-        backgroundContent = { DeleteBackground(dismissState) },
+        backgroundContent = { SwipeBackground(dismissState) },
         content = {
             Item(item)
         }
@@ -390,11 +365,13 @@ fun SwipeContainer(
 }
 
 @Composable
-fun DeleteBackground(
+fun SwipeBackground(
     swipeDismissState: SwipeToDismissBoxState
 ) {
     val color = if(swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
         Color.Red
+    } else if (swipeDismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd){
+        Color.Green
     } else {
         Color.Transparent
     }
@@ -403,52 +380,14 @@ fun DeleteBackground(
             .fillMaxSize()
             .background(color)
             .padding(dimensionResource(R.dimen.padding_medium)),
-        contentAlignment = Alignment.CenterEnd
+        contentAlignment = if (color == Color.Red) Alignment.CenterEnd else Alignment.CenterStart
     ) {
         Icon(
-            imageVector = Icons.Default.Delete,
+            imageVector = if (color == Color.Red) Icons.Default.Delete else  Icons.Default.Check,
             contentDescription = "",
             tint = Color.Black
         )
     }
-}
-
-@Composable
-fun AlertDialogExample(
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-    dialogTitle: String,
-    dialogText: String,
-) {
-    AlertDialog(
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirmation()
-                }
-            ) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("Dismiss")
-            }
-        }
-    )
 }
 
 @Composable
