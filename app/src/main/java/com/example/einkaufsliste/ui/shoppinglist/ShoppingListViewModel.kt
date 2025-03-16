@@ -49,6 +49,11 @@ class ShoppingListViewModel @Inject constructor(
             )
     }
 
+
+    suspend fun updateItem(item: Item){
+        itemRepository.updateItem(item)
+    }
+
     suspend fun saveItem() {
         if (validateInput()) {
             itemRepository.insertItem(bottomSheetUiState.itemDetails.toItem())
@@ -79,7 +84,8 @@ data class ShoppingListUiState(
 data class ItemDetails(
     val id: Int = 0,
     val name: String = "",
-    val description: String = ""
+    val description: String = "",
+    val isChecked: Int = 0
 )
 
 fun Item.toItemDetails(): ItemDetails = ItemDetails(
@@ -91,4 +97,5 @@ fun ItemDetails.toItem(): Item = Item(
     id = id,
     name = name,
     description = description,
+    isChecked = isChecked
 )

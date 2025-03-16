@@ -7,7 +7,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -58,8 +56,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -119,6 +115,11 @@ fun ShoppingListScreen(
                     coroutineScope.launch {
                         viewModel.removeItem(item)
                     }
+                },
+                onSwipeToCheck = { item ->
+                    coroutineScope.launch {
+                        viewModel.updateItem(item)
+                    }
                 }
             )
         }
@@ -133,6 +134,7 @@ fun ShoppingListBody(
     onSheetItemValueChange: (ItemDetails) -> Unit,
     onSaveClick: () -> Unit,
     onSwipeToDelete: (Item) -> Unit,
+    onSwipeToCheck: (Item) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column {
@@ -142,7 +144,7 @@ fun ShoppingListBody(
             LazyColumn(
             ) {
                 items(items = shoppingListItems, key = { it.id }){ item ->
-                    SwipeToDeleteContainer(item, onDelete = onSwipeToDelete)
+                    SwipeContainer(item, onDelete = onSwipeToDelete, onCheck = onSwipeToCheck)
                 }
             }
         }
@@ -251,7 +253,6 @@ fun BottomModalSheet(
 @Composable
 fun Item(
     item: Item,
-    isItemChecked: Boolean,
     modifier: Modifier = Modifier,
 ) {
     var longClicked by remember { mutableStateOf(false) }
@@ -276,7 +277,7 @@ fun Item(
                 top = dimensionResource(R.dimen.padding_small),
                 bottom = dimensionResource(R.dimen.padding_small)
             ),
-            colors = if (isItemChecked) {
+            colors = if (item.isChecked == 1) {
                 CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.onSurface
@@ -297,7 +298,7 @@ fun Item(
                 ItemInformation(
                     name = item.name,
                     information = item.description,
-                    isItemChecked = isItemChecked,
+                    isItemChecked = item.isChecked == 1,
                     modifier = Modifier.padding(start = 4.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -354,11 +355,12 @@ fun CheckButton(
 }
 
 @Composable
-fun SwipeToDeleteContainer(
+fun SwipeContainer(
     item: Item,
     onDelete: (Item) -> Unit = {},
+    onCheck: (Item) -> Unit = {},
 ) {
-    var isItemChecked by remember { mutableStateOf(false) }
+    //var isItemChecked by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val currentItem by rememberUpdatedState(item)
     val dismissState = rememberSwipeToDismissBoxState(
@@ -368,7 +370,8 @@ fun SwipeToDeleteContainer(
                 Toast.makeText(context, "Artikel entfernt", Toast.LENGTH_SHORT).show()
                 true
             } else if(it == SwipeToDismissBoxValue.StartToEnd) {
-                isItemChecked = true
+                //isItemChecked = true
+                onCheck(currentItem.copy(isChecked = 1))
                 false
             } else {
                 false
@@ -381,7 +384,7 @@ fun SwipeToDeleteContainer(
         modifier = Modifier,
         backgroundContent = { DeleteBackground(dismissState) },
         content = {
-            Item(item, isItemChecked)
+            Item(item)
         }
     )
 }

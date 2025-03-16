@@ -1,5 +1,6 @@
 package com.example.einkaufsliste.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -7,6 +8,8 @@ import androidx.room.PrimaryKey
 data class Item(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
-    val description: String
+    val description: String,
+    @ColumnInfo(name = "isChecked", defaultValue = "0")
+    val isChecked: Int = 0
 )
 

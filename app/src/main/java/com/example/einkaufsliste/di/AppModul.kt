@@ -27,6 +27,7 @@ internal object AppModule {
             context,
             ShoppingItemDatabase::class.java,
             "item_database")
+            .fallbackToDestructiveMigration()
             .build()
     }
 
