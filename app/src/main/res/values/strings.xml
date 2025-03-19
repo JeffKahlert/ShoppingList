@@ -10,4 +10,10 @@
     <string name="name">Name</string>
     <string name="cancel">Abbrechen</string>
     <string name="save">Speichern</string>
+    <string name="addArticle">Artikel hinzufügen</string>
+    <string name="article">Artikel</string>
+    <string name="info">Info</string>
+    <string name="deleteArticle">Artikel entfernt</string>
+    <string name="addInfo">Hier kann die Stückzahl
+        oder anderweitige Information zum Artikel eingefügt werden</string>
 </resources>

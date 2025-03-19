@@ -1,4 +1,4 @@
-package com.example.einkaufsliste.data.internal
+package com.example.einkaufsliste.data.internal.item
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -25,4 +25,10 @@ interface ItemDAO {
 
     @Query("SELECT * FROM items WHERE id = :id")
     fun getItem(id : Int): Flow<Item>
+
+    @Query("SELECT MAX(sortOrderId) FROM items")
+    suspend fun getMaxSortOrder(): Int?
+
+    @Query("UPDATE items SET sortOrderId = :newOrder WHERE id = :itemId")
+    suspend fun updateSortOrder(itemId: Int, newOrder: Int)
 }

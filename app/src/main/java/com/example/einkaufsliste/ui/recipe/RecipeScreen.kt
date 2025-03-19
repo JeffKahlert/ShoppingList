@@ -15,12 +15,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -29,10 +30,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.einkaufsliste.R
-import com.example.einkaufsliste.data.DataSource.dumbRecipes
-import com.example.einkaufsliste.data.model.Recipe
+import com.example.einkaufsliste.data.model.RecipeWithIngredients
 import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
 
@@ -40,15 +40,14 @@ import com.example.einkaufsliste.ui.theme.Shapes
  * Boilerplate code from ShoppingListScreen. Need take care of it sometime
  */
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipesScreen(
     onNavigateToShoppingListButton: () -> Unit,
     onAddRecipeButton: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: RecipeViewModel = hiltViewModel()
 ) {
-
-    val viewModel: RecipeViewModel = viewModel()
+    val recipeUiState by viewModel.recipeListUiState.collectAsState()
 
     Column(
         modifier = modifier
@@ -65,17 +64,20 @@ fun RecipesScreen(
         Box(
             modifier = Modifier.weight(0.9f)
         ) {
-            RecipeList(
+            RecipeScreenBody(
                 onAddRecipeButton = onAddRecipeButton,
+                recipeList = recipeUiState.recipeList
             )
         }
+
     }
 
 }
 
 @Composable
-fun RecipeList(
+fun RecipeScreenBody(
     onAddRecipeButton: () -> Unit,
+    recipeList: List<RecipeWithIngredients>,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -85,7 +87,7 @@ fun RecipeList(
             modifier = Modifier.weight(0.9f)
         ) {
             LazyColumn {
-                items(dumbRecipes) { recipe ->
+                items(recipeList) { recipe ->
                     RecipeItem(recipe)
                 }
             }
@@ -111,7 +113,7 @@ fun RecipeList(
 
 @Composable
 fun RecipeItem(
-    recipe: Recipe,
+    recipeWithIngredients: RecipeWithIngredients,
     modifier: Modifier = Modifier
 ) {
     Box() {
@@ -133,9 +135,9 @@ fun RecipeItem(
                     .padding(dimensionResource(R.dimen.padding_medium)),
             ) {
                 RecipeInformation(
-                    recipe.name,
-                    recipe.ingredients,
-                    recipe.instruction,
+                    name = recipeWithIngredients.recipe.name,
+                    ingredients = "recipe.ingredients",
+                    instruction = recipeWithIngredients.recipe.instruction,
                     modifier = Modifier.padding(start = 4.dp)
                 )
                 Spacer(Modifier.weight(1f))
@@ -147,7 +149,7 @@ fun RecipeItem(
 @Composable
 fun RecipeInformation(
     name: String,
-    ingredients: List<String>,
+    ingredients: String,
     instruction: String?,
     modifier: Modifier = Modifier
 ) {
@@ -163,13 +165,13 @@ fun RecipeInformation(
                 style = TextStyle(
                     fontWeight = FontWeight.Bold
                 ))
-            ingredients.forEach { ingredient ->
+            //ingredients.forEach { ingredient ->
                 Text(
-                    text= ingredient,
+                    text= ingredients,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge,
                 )
-            }
+            //}
         }
         if (instruction != null) {
             Text(text = stringResource(R.string.instruction),

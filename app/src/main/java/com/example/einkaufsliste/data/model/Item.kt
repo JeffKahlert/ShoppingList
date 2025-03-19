@@ -10,6 +10,8 @@ data class Item(
     val name: String,
     val description: String,
     @ColumnInfo(name = "isChecked", defaultValue = "0")
-    val isChecked: Int = 0
+    val isChecked: Int = 0,
+    @ColumnInfo(name = "sortOrderId", defaultValue = "0")
+    val sortOrderId: Int = 0,
 )
 

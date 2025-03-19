@@ -1,39 +1,75 @@
 package com.example.einkaufsliste.ui.recipe
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import com.example.einkaufsliste.data.internal.recipe.RecipeRepository
+import com.example.einkaufsliste.data.model.Ingredient
+import com.example.einkaufsliste.data.model.Recipe
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class AddRecipeViewModel : ViewModel() {
+@HiltViewModel
+class AddRecipeViewModel @Inject constructor(
+    private val recipeRepository: RecipeRepository
+) : ViewModel() {
 
-    private val _addRecipeUiState = MutableStateFlow(RecipeAddUiState())
-    val addRecipeUiState: StateFlow<RecipeAddUiState> = _addRecipeUiState.asStateFlow()
+    var addRecipeUiState by mutableStateOf(RecipeAddUiState())
+        private set
 
-    fun updateNameTextFieldValue(name: String) {
-        _addRecipeUiState.update { currentUiState ->
-            currentUiState.copy(
-                name = name
+    fun updateUiSate(recipeDetails: RecipeDetails) {
+        addRecipeUiState =
+            RecipeAddUiState(
+                recipeDetails = recipeDetails
             )
-        }
     }
 
-    fun updateIngredientTextFieldValue(content: String) {
-        _addRecipeUiState.update { currentUiState ->
-            currentUiState.copy(
-                ingredient = content
-            )
-        }
-    }
+    suspend fun saveItem(){
+        if (validateInput()) {
+            val recipe = recipeRepository.insertRecipe(addRecipeUiState.recipeDetails.toRecipe())
+            val ingredientList =
+                formatIngredientsStringToList(addRecipeUiState.recipeDetails.ingredients)
 
-    fun updateInstructionTextFieldValue(content: String?) {
-        if (content != null) {
-            _addRecipeUiState.update { currentUiState ->
-                currentUiState.copy(
-                    instruction = content
-                )
+            ingredientList.forEach { ingredient ->
+                recipeRepository.insertIngredients(Ingredient(
+                    name = ingredient,
+                    recipeOwnerId = recipe.toInt(),
+                ))
             }
         }
     }
+
+    private fun validateInput(uiState: RecipeDetails = addRecipeUiState.recipeDetails): Boolean {
+        return with(uiState) {
+            name.isNotBlank() && ingredients.isNotBlank()
+        }
+    }
+
 }
+
+data class RecipeAddUiState(
+    val recipeDetails: RecipeDetails = RecipeDetails(),
+)
+
+data class RecipeDetails(
+    val id: Int = 0,
+    val name: String = "",
+    val ingredients: String = "",
+    val instruction: String = ""
+)
+
+fun formatIngredientsStringToList(content: String): List<String> {
+    val splitString: List<String> = content.split(",")
+    val resultList: MutableList<String> = mutableListOf()
+    splitString.forEach { ingredient ->
+        resultList.add(ingredient.trim())
+    }
+    return resultList
+}
+
+fun RecipeDetails.toRecipe(): Recipe = Recipe(
+    recipeId = id,
+    name = name,
+    instruction = instruction
+    )

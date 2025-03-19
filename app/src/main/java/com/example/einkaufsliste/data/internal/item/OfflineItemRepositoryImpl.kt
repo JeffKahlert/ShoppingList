@@ -1,8 +1,7 @@
-package com.example.einkaufsliste.data.internal
+package com.example.einkaufsliste.data.internal.item
 
 import com.example.einkaufsliste.data.model.Item
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import javax.inject.Inject
 
 class OfflineItemRepositoryImpl @Inject constructor(
@@ -18,4 +17,9 @@ class OfflineItemRepositoryImpl @Inject constructor(
     override suspend fun deleteItem(item: Item) = itemDAO.deleteItem(item)
 
     override suspend fun updateItem(item: Item) = itemDAO.updateItem(item)
+
+    override suspend fun getMaxSortOrder(): Int? = itemDAO.getMaxSortOrder()
+
+    override suspend fun updateSortOrder(itemId: Int, newOrder: Int) =
+        itemDAO.updateSortOrder(itemId, newOrder)
 }

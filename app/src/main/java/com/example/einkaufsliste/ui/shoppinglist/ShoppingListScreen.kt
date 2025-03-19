@@ -3,11 +3,8 @@
 package com.example.einkaufsliste.ui.shoppinglist
 
 
-import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -67,7 +64,6 @@ import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun ShoppingListScreen(
     onNavigateToRecipesButton: () -> Unit,
@@ -114,7 +110,7 @@ fun ShoppingListScreen(
                     coroutineScope.launch {
                         viewModel.updateItem(item)
                     }
-                }
+                },
             )
         }
     }
@@ -135,10 +131,13 @@ fun ShoppingListBody(
         Box(
             modifier = Modifier.weight(0.9f)
         ) {
-            LazyColumn(
-            ) {
+            LazyColumn {
                 items(items = shoppingListItems, key = { it.id }){ item ->
-                    SwipeContainer(item, onDelete = onSwipeToDelete, onCheck = onSwipeToCheck)
+                    SwipeContainer(
+                        item,
+                        onDelete = onSwipeToDelete,
+                        onCheck = onSwipeToCheck,
+                    )
                 }
             }
         }
@@ -195,12 +194,15 @@ fun BottomModalSheet(
                 .padding(dimensionResource(R.dimen.padding_medium))
                 .imePadding()
         ) {
-            Text("Artikel hinzufügen", style = MaterialTheme.typography.displayLarge)
+            Text(
+                text = stringResource(R.string.addArticle),
+                style = MaterialTheme.typography.displayLarge
+            )
             Spacer(Modifier.padding(8.dp))
             OutlinedTextField(
                 value = itemDetails.name,
                 onValueChange = { onSheetItemValueChange(itemDetails.copy(name = it)) },
-                label = { Text("Artikel")},
+                label = { Text(text = stringResource(R.string.article)) },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction =  ImeAction.Next
                 ),
@@ -216,7 +218,7 @@ fun BottomModalSheet(
             OutlinedTextField(
                 value = itemDetails.description,
                 onValueChange = { onSheetItemValueChange(itemDetails.copy(description = it))},
-                label = { Text("Info -> Optional")},
+                label = { Text(text = stringResource(R.string.info))},
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done
                 ),
@@ -225,6 +227,7 @@ fun BottomModalSheet(
                 ),
                 modifier = Modifier.focusRequester(infoFocusRequester)
             )
+            Text(text = stringResource(R.string.addInfo))
             Spacer(Modifier.padding(8.dp))
 
             Button(
@@ -243,29 +246,14 @@ fun BottomModalSheet(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Item(
     item: Item,
     modifier: Modifier = Modifier,
 ) {
-    var longClicked by remember { mutableStateOf(false) }
-    var clicked by remember { mutableStateOf(false) }
-
     Box {
         Card(
-            modifier = Modifier
-                .combinedClickable(
-                    onClick = {
-                        Log.e("CLICKED", "Long Short Button")
-                        clicked = true
-                    },
-                    onLongClick = {
-                        Log.e("CLICKED", "Long Pressed Button")
-                        longClicked = true
-                    }
-                )
-                .padding(
+            modifier = Modifier.padding(
                 start = dimensionResource(R.dimen.padding_medium),
                 end = dimensionResource(R.dimen.padding_medium),
                 top = dimensionResource(R.dimen.padding_small),
@@ -343,7 +331,7 @@ fun SwipeContainer(
         confirmValueChange = {
             if (it == SwipeToDismissBoxValue.EndToStart) {
                 onDelete(currentItem)
-                Toast.makeText(context, "Artikel entfernt", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.deleteArticle , Toast.LENGTH_SHORT).show()
                 true
             } else if(it == SwipeToDismissBoxValue.StartToEnd) {
                 onCheck(currentItem.copy(isChecked = 1))

@@ -1,4 +1,4 @@
-package com.example.einkaufsliste.data.internal
+package com.example.einkaufsliste.data.internal.item
 
 import com.example.einkaufsliste.data.model.Item
 import kotlinx.coroutines.flow.Flow
@@ -17,4 +17,8 @@ interface ItemRepository {
     suspend fun deleteItem(item: Item)
 
     suspend fun updateItem(item: Item)
+
+    suspend fun getMaxSortOrder(): Int?
+
+    suspend fun updateSortOrder(itemId: Int, newOrder: Int)
 }

@@ -1,14 +1,15 @@
 package com.example.einkaufsliste.di
 
-import android.app.Application
 import android.content.Context
 import androidx.room.Room
-import com.example.einkaufsliste.data.internal.ItemDAO
-import com.example.einkaufsliste.data.internal.ItemRepository
-import com.example.einkaufsliste.data.internal.OfflineItemRepositoryImpl
-import com.example.einkaufsliste.data.internal.ShoppingItemDatabase
-import com.example.einkaufsliste.data.model.Item
-import dagger.Binds
+import com.example.einkaufsliste.data.internal.item.ItemDAO
+import com.example.einkaufsliste.data.internal.item.ItemRepository
+import com.example.einkaufsliste.data.internal.item.OfflineItemRepositoryImpl
+import com.example.einkaufsliste.data.internal.item.ShoppingItemDatabase
+import com.example.einkaufsliste.data.internal.recipe.OfflineRecipeRepositoryImpl
+import com.example.einkaufsliste.data.internal.recipe.RecipeDAO
+import com.example.einkaufsliste.data.internal.recipe.RecipeDatabase
+import com.example.einkaufsliste.data.internal.recipe.RecipeRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,6 +41,28 @@ internal object AppModule {
     @Singleton
     fun provideItemRepository(itemDAO: ItemDAO): ItemRepository {
         return OfflineItemRepositoryImpl(itemDAO)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRecipeDatabase(@ApplicationContext context: Context): RecipeDatabase {
+        return Room.databaseBuilder(
+            context,
+            RecipeDatabase::class.java,
+            "recipe_database")
+            .fallbackToDestructiveMigration()
+            .build()
+    }
+
+    @Provides
+    fun provideRecipeDao(database: RecipeDatabase): RecipeDAO {
+        return database.recipeDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRecipeRepository(recipeDAO: RecipeDAO): RecipeRepository {
+        return OfflineRecipeRepositoryImpl(recipeDAO)
     }
 
 }

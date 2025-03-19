@@ -1,12 +1,11 @@
 package com.example.einkaufsliste.ui.shoppinglist
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.einkaufsliste.data.internal.ItemRepository
+import com.example.einkaufsliste.data.internal.item.ItemRepository
 import com.example.einkaufsliste.data.model.Item
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -49,14 +48,17 @@ class ShoppingListViewModel @Inject constructor(
             )
     }
 
-
     suspend fun updateItem(item: Item){
         itemRepository.updateItem(item)
     }
 
     suspend fun saveItem() {
         if (validateInput()) {
-            itemRepository.insertItem(bottomSheetUiState.itemDetails.toItem())
+            /*val maxOrder = itemRepository.getMaxSortOrder() ?: 0
+            bottomSheetUiState.itemDetails.sortOrderId = maxOrder + 1*/
+            itemRepository.insertItem(
+                bottomSheetUiState.itemDetails.toItem()
+            )
         }
     }
 
@@ -66,6 +68,18 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
+    // Try to add Drag-n-Drop
+    /*suspend fun moveItem(from: Int, to: Int) {
+        val currentItems = shoppingListUiState.value.items
+        val mutableList = currentItems.toMutableList()
+
+        val item = mutableList.removeAt(from)
+        mutableList.add(to, item)
+
+        mutableList.forEachIndexed  { index, item ->
+            itemRepository.updateSortOrder(item.id, index)
+        }
+    }*/
 }
 
 data class BottomSheetUiState(
@@ -73,7 +87,6 @@ data class BottomSheetUiState(
     val isBottomSheetVisible: Boolean = false,
     val isEntryValid: Boolean = false
 )
-
 
 data class ShoppingListUiState(
     val items: List<Item> = emptyList(),
@@ -85,7 +98,8 @@ data class ItemDetails(
     val id: Int = 0,
     val name: String = "",
     val description: String = "",
-    val isChecked: Int = 0
+    val isChecked: Int = 0,
+    var sortOrderId: Int = 0,
 )
 
 fun Item.toItemDetails(): ItemDetails = ItemDetails(
@@ -97,5 +111,5 @@ fun ItemDetails.toItem(): Item = Item(
     id = id,
     name = name,
     description = description,
-    isChecked = isChecked
+    isChecked = isChecked,
 )
