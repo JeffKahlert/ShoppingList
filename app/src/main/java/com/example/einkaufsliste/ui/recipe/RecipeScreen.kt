@@ -65,36 +65,10 @@ fun RecipesScreen(
             modifier = Modifier.weight(0.9f)
         ) {
             RecipeScreenBody(
-                onAddRecipeButton = onAddRecipeButton,
                 recipeList = recipeUiState.recipeList
             )
         }
-
-    }
-
-}
-
-@Composable
-fun RecipeScreenBody(
-    onAddRecipeButton: () -> Unit,
-    recipeList: List<RecipeWithIngredients>,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-    ) {
-        Box(
-            modifier = Modifier.weight(0.9f)
-        ) {
-            LazyColumn {
-                items(recipeList) { recipe ->
-                    RecipeItem(recipe)
-                }
-            }
-        }
-        Box(
-            modifier = Modifier.weight(0.1f)
-        ) {
+        Box{
             Button(
                 onClick = onAddRecipeButton,
                 shape = Shapes.medium,
@@ -108,6 +82,28 @@ fun RecipeScreenBody(
                 )
             }
         }
+
+    }
+
+}
+
+@Composable
+fun RecipeScreenBody(
+    recipeList: List<RecipeWithIngredients>,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
+        Box(
+        ) {
+            LazyColumn {
+                items(recipeList) { recipe ->
+                    RecipeItem(recipe)
+                }
+            }
+        }
+
     }
 }
 

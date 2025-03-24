@@ -29,5 +29,5 @@ val AppTypography = Typography(
         fontFamily = Monserrat,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp
-    )
+    ),
 )

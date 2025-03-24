@@ -16,4 +16,5 @@
     <string name="deleteArticle">Artikel entfernt</string>
     <string name="addInfo">Hier kann die Stückzahl
         oder anderweitige Information zum Artikel eingefügt werden</string>
+    <string name="recipe">Rezept</string>
 </resources>

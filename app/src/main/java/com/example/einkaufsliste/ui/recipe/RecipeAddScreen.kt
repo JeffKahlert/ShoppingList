@@ -1,30 +1,42 @@
 package com.example.einkaufsliste.ui.recipe
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -32,7 +44,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.einkaufsliste.R
 import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
@@ -57,7 +68,6 @@ fun RecipeAddScreen(
         RecipeEntryBody(
             recipeAddUiState = viewModel.addRecipeUiState,
             onItemValueChange = viewModel::updateUiSate,
-            onCancelButton = onCancelButton,
             onSaveClick = {
                 coroutineScope.launch {
                     viewModel.saveItem()
@@ -66,98 +76,174 @@ fun RecipeAddScreen(
         )
 
     }
-
 }
 
 @Composable
 fun RecipeEntryBody(
+    modifier: Modifier = Modifier,
     recipeAddUiState: RecipeAddUiState,
     onItemValueChange: (RecipeDetails) -> Unit,
-    onCancelButton: () -> Unit,
     onSaveClick: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
-            .verticalScroll(rememberScrollState())
+        modifier = modifier
     ) {
-        InputForm(
-            recipeDetails = recipeAddUiState.recipeDetails,
-            onItemValueChange = onItemValueChange,
-        )
-        SaveAndCancelButtons(
-            onCancelButton = onCancelButton,
-            onSaveClick = onSaveClick
-        )
+        Box(
+            modifier = Modifier.weight(0.9f)
+        ) {
+            InputForm(
+                recipeDetails = recipeAddUiState.recipeDetails,
+                onItemValueChange = onItemValueChange,
+            )
+        }
+        Box {
+            SaveButtons(
+                onSaveClick = onSaveClick
+            )
+        }
     }
 }
 
 @Composable
 fun InputForm(
+    modifier: Modifier = Modifier,
     recipeDetails: RecipeDetails,
     onItemValueChange: (RecipeDetails) -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
-            .padding(dimensionResource(R.dimen.padding_medium) )
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(dimensionResource(R.dimen.padding_medium))
     ) {
-        Text(
-            text = "Name",
-            style = MaterialTheme.typography.displayLarge,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
-        TextField(
+        OutlinedTextField(
+            label = { Text(stringResource(R.string.name))},
             value = recipeDetails.name,
             onValueChange = {
                 onItemValueChange(recipeDetails.copy(name = it))
             },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 4.dp),
-            textStyle = TextStyle(
-                fontSize = 24.sp
+            ,
+            shape = RoundedCornerShape(dimensionResource(R.dimen.padding_medium)),
+        )
+        Spacer(Modifier.padding(top = 8.dp))
+        Row(
+        ) {
+            OutlinedTextField(
+                label = { Text("minuten") },
+                value = recipeDetails.name,
+                onValueChange = {},
+                shape = RoundedCornerShape(dimensionResource(R.dimen.padding_medium)),
+                modifier = Modifier.weight(0.25f)
             )
-        )
+            Spacer(Modifier.padding(end = 8.dp))
+            OutlinedTextField(
+                label = { Text("1") },
+                value = recipeDetails.name,
+                onValueChange = {},
+                shape = RoundedCornerShape(
+                    topStart = dimensionResource(R.dimen.padding_medium),
+                    bottomStart = dimensionResource(R.dimen.padding_medium)
 
-        Text(
-            text = "Zutaten",
-            style = MaterialTheme.typography.displayLarge,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
-        TextField(
-            value = recipeDetails.ingredients,
-            onValueChange = {
-                onItemValueChange(recipeDetails.copy(ingredients = it))
-            },
+                ),
+                modifier = Modifier.weight(0.2f)
+            )
+            OutlinedTextField(
+                label = { Text("Portionen") },
+                value = recipeDetails.name,
+                onValueChange = {},
+                shape = RoundedCornerShape(
+                    topEnd = dimensionResource(R.dimen.padding_medium),
+                    bottomEnd = dimensionResource(R.dimen.padding_medium)
+
+                ),
+                modifier = Modifier.weight(0.35f)
+            )
+        }
+
+
+        Spacer(Modifier.padding(top = 16.dp))
+        Card(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 4.dp),
-            textStyle = TextStyle(
-                fontSize = 24.sp
-            )
-        )
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.padding_medium))
+                )
+                .clickable {
+                },
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
 
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Zutaten",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(20.dp)
+                )
+                Spacer(Modifier.weight(1f))
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(end = 16.dp)
+                )
+            }
+
+        }
+        Spacer(Modifier.padding(top = 16.dp))
         Text(
             text = "Anleitung",
             style = MaterialTheme.typography.displayLarge,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
         )
-        TextField(
+        Spacer(Modifier.padding(top = 16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {},
+                shape = Shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                ),
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    shape = Shapes.medium
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Spacer(Modifier.padding(4.dp))
+                Text(
+                    text = stringResource(R.string.add),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
+        /*OutlinedTextField(
             value = recipeDetails.instruction,
             onValueChange = {
                 onItemValueChange(recipeDetails.copy(instruction = it))
             },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 4.dp),
-            textStyle = TextStyle(
-                fontSize = 24.sp
-            )
-        )
+        )*/
     }
 }
-
 
 @Composable
 fun AddRecipeTopBar(
@@ -179,7 +265,7 @@ fun AddRecipeTopBar(
         }
         Spacer(Modifier.weight(1f))
         Text(
-            text = stringResource(R.string.recipes),
+            text = stringResource(R.string.recipe),
             style = MaterialTheme.typography.displayLarge,
             modifier = Modifier
                 .padding(16.dp)
@@ -221,81 +307,37 @@ fun AddRecipeTopBar(
 }*/
 
 @Composable
-fun SaveAndCancelButtons(
-    onCancelButton: () -> Unit,
+fun SaveButtons(
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Button(
+        onClick = onSaveClick,
         modifier = Modifier
             .fillMaxWidth()
             .padding(dimensionResource(R.dimen.padding_medium)),
-        verticalAlignment = Alignment.CenterVertically
+        shape = Shapes.medium
     ) {
-
-        Box(
-            modifier = Modifier.weight(0.5f)
-        ) {
-            Button(
-                onClick = onCancelButton,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_small)),
-                shape = Shapes.medium
-            ) {
-                Text(
-                    text = stringResource(R.string.cancel),
-                    style = MaterialTheme.typography.displayMedium
-                )
-            }
-        }
-
-        Box(
-            modifier = Modifier.weight(0.5f),
-        ) {
-            Button(
-                onClick = onSaveClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_small)),
-                shape = Shapes.medium
-            ) {
-                Text(
-                    text = stringResource(R.string.save),
-                    style = MaterialTheme.typography.displayMedium
-                )
-            }
-        }
+        Text(
+            text = stringResource(R.string.save),
+            style = MaterialTheme.typography.displayMedium
+        )
     }
+
 }
+
 
 @Preview
 @Composable
-fun AddRecipeScreenDarkTheme() {
+fun InputFormPreview() {
     EinkaufslisteTheme(darkTheme = true) {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            RecipeAddScreen(
-                onCancelButton = {},
-                onBackButton = {},
-                Modifier.padding(innerPadding)
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun AddRecipeScreenLightTheme() {
-    EinkaufslisteTheme(darkTheme = false) {
-        Scaffold(
-            modifier = Modifier.fillMaxSize()
-        ) { innerPadding ->
-            RecipeAddScreen(
-                onCancelButton = {},
-                onBackButton = {},
-                Modifier.padding(innerPadding)
+            InputForm(
+                modifier = Modifier.padding(innerPadding),
+                recipeDetails = RecipeDetails(),
+                onItemValueChange = {}
             )
         }
     }

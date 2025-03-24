@@ -30,11 +30,14 @@ class AddRecipeViewModel @Inject constructor(
             val recipe = recipeRepository.insertRecipe(addRecipeUiState.recipeDetails.toRecipe())
             val ingredientList =
                 formatIngredientsStringToList(addRecipeUiState.recipeDetails.ingredients)
-
+            val ingredientComponentsList =
             ingredientList.forEach { ingredient ->
                 recipeRepository.insertIngredients(Ingredient(
                     name = ingredient,
                     recipeOwnerId = recipe.toInt(),
+                    ingredientId = TODO(),
+                    amount = TODO(),
+                    unit = TODO(),
                 ))
             }
         }
@@ -60,12 +63,19 @@ data class RecipeDetails(
 )
 
 fun formatIngredientsStringToList(content: String): List<String> {
-    val splitString: List<String> = content.split(",")
+    val splitIngredients: List<String> = content.split(",")
     val resultList: MutableList<String> = mutableListOf()
-    splitString.forEach { ingredient ->
+    splitIngredients.forEach { ingredient ->
         resultList.add(ingredient.trim())
     }
     return resultList
+}
+
+fun splitIngredientIntoAmount(content: List<String>): List<String> {
+    val splitIngredientToComponents: List<String> = content[0].split(" ")
+    val resultList: MutableList<String> = mutableListOf()
+    splitIngredientToComponents.forEach { }
+    return emptyList()
 }
 
 fun RecipeDetails.toRecipe(): Recipe = Recipe(

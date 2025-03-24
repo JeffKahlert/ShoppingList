@@ -30,6 +30,8 @@ data class Recipe(
 data class Ingredient(
     @PrimaryKey(autoGenerate = true) val ingredientId: Int = 0,
     val name: String,
+    val amount: String,
+    val unit: String,
     val recipeOwnerId: Int,
 )
 
