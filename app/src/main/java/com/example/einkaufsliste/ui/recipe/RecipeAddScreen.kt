@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
@@ -470,8 +471,30 @@ fun IngredientsBottomModalSheet(
                 modifier = Modifier.weight(0.7f)
             ) {
                 LazyColumn {
-                    items(testList) { item ->
-
+                    items(ingredientUiState.ingredients.toList()) { ingredientMap ->
+                        ingredientMap.forEach { (ingredient, amount) ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row {
+                                    Text(
+                                        text = amount
+                                    )
+                                    Text(
+                                        text = ingredient
+                                    )
+                                    Spacer(Modifier.weight(1f))
+                                    IconButton(
+                                        onClick = {}
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = ""
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
