@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -21,6 +23,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -38,6 +42,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -84,6 +89,8 @@ fun RecipeAddScreen(
             onEditInstructionValueChange = viewModel::updateEditInstructionUiState,
             onUpdateEditInstruction = viewModel::updateUiState,
             onTransferUiStates = viewModel::transferRecipeUiStateToEditUiState,
+            ingredientUiState = viewModel.ingredientBottomModalUiState,
+            onShowIngredientSheet = viewModel::changeIngredientsBottomModalState,
             onSaveClick = {
                 coroutineScope.launch {
                     viewModel.saveItem()
@@ -106,7 +113,9 @@ fun RecipeEntryBody(
     onItemValueChange: (RecipeDetails) -> Unit,
     onSaveClick: () -> Unit,
     onTransferUiStates: () -> Unit,
-    onUpdateEditInstruction: (RecipeDetails) -> Unit
+    onUpdateEditInstruction: (RecipeDetails) -> Unit,
+    ingredientUiState: IngredientBottomModalUiState,
+    onShowIngredientSheet: (Boolean) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -118,8 +127,10 @@ fun RecipeEntryBody(
                 recipeDetails = recipeAddUiState.recipeDetails,
                 instructionBottomSheetUiState = instructionBottomSheetUiState,
                 editBottomSheetUiState = editUiState,
+                ingredientBottomModalUiState = ingredientUiState,
                 onShowEditSheet = onShowEditSheet,
                 onShowInstructionBottomSheet = onShowInstructionSheet,
+                onShowIngredientSheet = onShowIngredientSheet,
                 onItemValueChange = onItemValueChange,
                 onTransferUiStates = onTransferUiStates
             )
@@ -142,7 +153,6 @@ fun RecipeEntryBody(
         }
 
         if (editUiState.isVisible) {
-
             Log.d("UI", "editUiState.recipeDetails.instruction = ${editUiState.recipeDetails.instruction}")
             EditInstructionBottomModalSheet(
                 recipeDetails = editUiState.recipeDetails,
@@ -150,6 +160,13 @@ fun RecipeEntryBody(
                 onShowBottomSheet = onShowEditSheet,
                 onEditItemValueChange = onEditInstructionValueChange,
                 onUpdateUiState = onUpdateEditInstruction
+            )
+        }
+
+        if (ingredientUiState.isVisible) {
+            IngredientsBottomModalSheet(
+                onShowBottomSheet = onShowIngredientSheet,
+                ingredientUiState = ingredientUiState,
             )
         }
     }
@@ -160,9 +177,11 @@ fun InputForm(
     modifier: Modifier = Modifier,
     instructionBottomSheetUiState: InstructionBottomModalUiState,
     editBottomSheetUiState: EditInstructionBottomModalUiState,
+    ingredientBottomModalUiState: IngredientBottomModalUiState,
     recipeDetails: RecipeDetails,
     onShowInstructionBottomSheet: (Boolean) -> Unit = {},
     onShowEditSheet: (Boolean) -> Unit,
+    onShowIngredientSheet: (Boolean) -> Unit,
     onTransferUiStates: () -> Unit,
     onItemValueChange: (RecipeDetails) -> Unit = {},
 ) {
@@ -220,7 +239,10 @@ fun InputForm(
             )
         }
         Spacer(Modifier.padding(top = 16.dp))
-        IngredientCard()
+        IngredientCard(
+            isBottomSheetVisible = onShowIngredientSheet,
+            ingredientUiState = ingredientBottomModalUiState
+        )
         Spacer(Modifier.padding(top = 16.dp))
         Text(
             text = stringResource(R.string.instruction),
@@ -407,6 +429,115 @@ fun EditInstructionBottomModalSheet(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IngredientsBottomModalSheet(
+    modifier: Modifier = Modifier,
+    onShowBottomSheet: (Boolean) -> Unit,
+    ingredientUiState: IngredientBottomModalUiState
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    var isAmountTextFieldFocused by remember { mutableStateOf(false) }
+    var isIngredientTextFieldFocused by remember { mutableStateOf(false) }
+
+
+    var count by remember { mutableIntStateOf(0) }
+
+    val testList: List<String> = listOf("Eins", "zwei")
+
+    ModalBottomSheet(
+        modifier = Modifier.fillMaxSize(),
+        onDismissRequest = {
+            showBottomSheet = false
+            onShowBottomSheet(ingredientUiState.isVisible)
+        },
+        sheetState = sheetState
+    ) {
+        Column (
+            modifier = Modifier.padding(8.dp)
+        ){
+            Text(
+                text = "Zutaten",
+                style = MaterialTheme.typography.displayMedium,
+                modifier = Modifier.padding(8.dp)
+            )
+            Spacer(Modifier.padding(8.dp))
+            HorizontalDivider(thickness = 1.dp)
+            Spacer(Modifier.padding(8.dp))
+            Box(
+                modifier = Modifier.weight(0.7f)
+            ) {
+                LazyColumn {
+                    items(testList) { item ->
+
+                    }
+                }
+            }
+            HorizontalDivider(thickness = 1.dp)
+            Spacer(Modifier.padding(4.dp))
+            Box {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier.weight(1.5f)
+                    ) {
+                        OutlinedTextField(
+                            value = "",
+                            onValueChange = {},
+                            label = { Text( if(isAmountTextFieldFocused)"Menge" else "2 EL")},
+                            shape = RoundedCornerShape(
+                                topStart = dimensionResource(R.dimen.padding_medium),
+                                bottomStart = dimensionResource(R.dimen.padding_medium)
+                            ),
+                            modifier = Modifier.onFocusChanged {
+                                isAmountTextFieldFocused = it.isFocused
+                            }
+                        )
+                    }
+                    Box(
+                        modifier = Modifier.weight(3f)
+                    ){
+                        OutlinedTextField(
+                            value = "",
+                            onValueChange = {},
+                            label = { Text( if(isIngredientTextFieldFocused)"Zutat" else "Zucker")},
+                            shape = RoundedCornerShape(
+                                topEnd = dimensionResource(R.dimen.padding_medium),
+                                bottomEnd = dimensionResource(R.dimen.padding_medium),
+                            ),
+                            modifier = Modifier.onFocusChanged {
+                                isIngredientTextFieldFocused = it.isFocused
+                            }
+                        )
+                    }
+                    Box(
+                        //modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center,
+                    ){
+                        IconButton(
+                            onClick = {},
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Send,
+                                contentDescription = "",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+}
+
 @Composable
 fun InstructionCard(
     recipeDetails: RecipeDetails,
@@ -437,12 +568,11 @@ fun InstructionCard(
                     )
                 }
             }
-            Box(
-            ) {
+            Box {
                 IconButton(
                     onClick = {
-                        onTransferUiStates()
                         onShowBottomSheet(editBottomSheetUiState.isVisible)
+                        onTransferUiStates()
                     }
                 ) {
                     Icon(
@@ -458,7 +588,8 @@ fun InstructionCard(
 
 @Composable
 fun IngredientCard(
-
+    isBottomSheetVisible: (Boolean) -> Unit,
+    ingredientUiState: IngredientBottomModalUiState,
 ) {
     Card(
         modifier = Modifier
@@ -469,11 +600,11 @@ fun IngredientCard(
                 shape = RoundedCornerShape(dimensionResource(R.dimen.padding_medium))
             )
             .clickable {
+                isBottomSheetVisible(ingredientUiState.isVisible)
             },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
-        ),
-
+            )
         ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -524,38 +655,6 @@ fun AddRecipeTopBar(
     }
 }
 
-/*@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddRecipeTopBar(
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Spacer(Modifier.weight(1f))
-                Text(
-                    text= "Rezept",
-                    style = MaterialTheme.typography.displayLarge,
-                    modifier = Modifier
-                        .padding(16.dp)
-                )
-            }
-        },
-        navigationIcon = {
-            IconButton(onClick = {}) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-        }
-    )
-}*/
-
 @Composable
 fun SaveButtons(
     onSaveClick: () -> Unit,
@@ -589,8 +688,43 @@ fun InputFormPreview() {
                 onShowEditSheet = {},
                 editBottomSheetUiState = EditInstructionBottomModalUiState(),
                 onTransferUiStates = {},
-                onItemValueChange = {}
+                ingredientBottomModalUiState = IngredientBottomModalUiState(),
+                onItemValueChange = {},
+                onShowIngredientSheet = {}
             )
         }
     }
 }
+
+/*@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddRecipeTopBar(
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(Modifier.weight(1f))
+                Text(
+                    text= "Rezept",
+                    style = MaterialTheme.typography.displayLarge,
+                    modifier = Modifier
+                        .padding(16.dp)
+                )
+            }
+        },
+        navigationIcon = {
+            IconButton(onClick = {}) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
+    )
+}*/
+

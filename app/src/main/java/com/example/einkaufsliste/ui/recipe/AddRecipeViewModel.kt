@@ -25,12 +25,19 @@ class AddRecipeViewModel @Inject constructor(
     var editInstructionBottomModalUiState by mutableStateOf(EditInstructionBottomModalUiState())
         private set
 
+    var ingredientBottomModalUiState by mutableStateOf(IngredientBottomModalUiState())
+        private set
 
     fun updateUiState(recipeDetails: RecipeDetails) {
         addRecipeUiState =
             RecipeAddUiState(
                 recipeDetails = recipeDetails
             )
+    }
+
+    fun changeIngredientsBottomModalState(isVisible: Boolean) {
+        ingredientBottomModalUiState =
+            IngredientBottomModalUiState(isVisible = !isVisible)
     }
 
     fun changeInstructionBottomModalState(isVisible: Boolean) {
@@ -59,8 +66,6 @@ class AddRecipeViewModel @Inject constructor(
             )
     }
 
-
-    // Ich mache hier irgendwas falsch, habe aber noch keine Ahnung woran es liegt
     fun transferRecipeUiStateToEditUiState() {
         Log.d("TRANSFER", "Vorher: ${editInstructionBottomModalUiState.recipeDetails.instruction}")
 
@@ -71,9 +76,6 @@ class AddRecipeViewModel @Inject constructor(
 
         Log.d("TRANSFER", "Nachher: ${editInstructionBottomModalUiState.recipeDetails.instruction}")
     }
-
-
-
 
     suspend fun saveItem(){
         if (validateInput()) {
@@ -109,6 +111,11 @@ data class InstructionBottomModalUiState(
 data class EditInstructionBottomModalUiState(
     val isVisible: Boolean = false,
     val recipeDetails: RecipeDetails = RecipeDetails()
+)
+
+data class IngredientBottomModalUiState(
+    val isVisible: Boolean = false,
+    val ingredients: Set<Map<String, String>> = emptySet()
 )
 
 data class RecipeAddUiState(
