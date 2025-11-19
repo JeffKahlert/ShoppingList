@@ -1,8 +1,5 @@
-package com.example.einkaufsliste.data.internal.recipe
+package com.example.einkaufsliste.data.local.recipe
 
-import com.example.einkaufsliste.data.model.Ingredient
-import com.example.einkaufsliste.data.model.Recipe
-import com.example.einkaufsliste.data.model.RecipeWithIngredients
 import kotlinx.coroutines.flow.Flow
 
 interface RecipeRepository {

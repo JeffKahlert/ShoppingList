@@ -32,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.einkaufsliste.R
-import com.example.einkaufsliste.data.model.RecipeWithIngredients
+import com.example.einkaufsliste.data.local.recipe.RecipeWithIngredients
 import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
 

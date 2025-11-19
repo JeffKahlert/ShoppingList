@@ -1,4 +1,4 @@
-package com.example.einkaufsliste.data.model
+package com.example.einkaufsliste.data.local.recipe
 
 import androidx.room.Embedded
 import androidx.room.Entity

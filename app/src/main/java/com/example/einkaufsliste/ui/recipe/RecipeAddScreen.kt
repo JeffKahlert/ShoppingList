@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -43,7 +42,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -58,7 +56,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.einkaufsliste.R
-import com.example.einkaufsliste.ui.shoppinglist.BottomSheetUiState
 import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
 import kotlinx.coroutines.launch
@@ -92,6 +89,8 @@ fun RecipeAddScreen(
             onTransferUiStates = viewModel::transferRecipeUiStateToEditUiState,
             ingredientUiState = viewModel.ingredientBottomModalUiState,
             onShowIngredientSheet = viewModel::changeIngredientsBottomModalState,
+            onAddIngredient = viewModel::addIngredient,
+            onTypeIngredientDetails = viewModel::updateIngredientUiState,
             onSaveClick = {
                 coroutineScope.launch {
                     viewModel.saveItem()
@@ -116,8 +115,10 @@ fun RecipeEntryBody(
     onTransferUiStates: () -> Unit,
     onUpdateEditInstruction: (RecipeDetails) -> Unit,
     ingredientUiState: IngredientBottomModalUiState,
-    onShowIngredientSheet: (Boolean) -> Unit
-) {
+    onShowIngredientSheet: (Boolean) -> Unit,
+    onAddIngredient: (IngredientDetails, Set<Map<String, String>>) -> Unit,
+    onTypeIngredientDetails: (IngredientDetails, Set<Map<String, String>>) -> Unit,
+    ) {
     Column(
         modifier = modifier
     ) {
@@ -168,6 +169,9 @@ fun RecipeEntryBody(
             IngredientsBottomModalSheet(
                 onShowBottomSheet = onShowIngredientSheet,
                 ingredientUiState = ingredientUiState,
+                onAddIngredient = onAddIngredient,
+                onTypeIngredientDetails = onTypeIngredientDetails,
+                ingredientDetails = ingredientUiState.ingredientDetails,
             )
         }
     }
@@ -196,9 +200,7 @@ fun InputForm(
         OutlinedTextField(
             label = { Text(stringResource(R.string.name))},
             value = recipeDetails.name,
-            onValueChange = {
-                onItemValueChange(recipeDetails.copy(name = it))
-            },
+            onValueChange = { onItemValueChange(recipeDetails.copy(name = it)) },
             modifier = Modifier
                 .fillMaxSize()
             ,
@@ -209,16 +211,16 @@ fun InputForm(
         ) {
             OutlinedTextField(
                 label = { Text("Minuten") },
-                value = recipeDetails.name,
-                onValueChange = {},
+                value = recipeDetails.duration,
+                onValueChange = { onItemValueChange(recipeDetails.copy(duration = it)) },
                 shape = RoundedCornerShape(dimensionResource(R.dimen.padding_medium)),
                 modifier = Modifier.weight(0.25f)
             )
             Spacer(Modifier.padding(end = 8.dp))
             OutlinedTextField(
                 label = { Text(if (isAmountTextFieldFocused) "Anzahl" else "1") },
-                value = recipeDetails.name,
-                onValueChange = {},
+                value = recipeDetails.amount,
+                onValueChange = { onItemValueChange(recipeDetails.copy(amount = it)) },
                 shape = RoundedCornerShape(
                     topStart = dimensionResource(R.dimen.padding_medium),
                     bottomStart = dimensionResource(R.dimen.padding_medium)
@@ -229,8 +231,8 @@ fun InputForm(
             )
             OutlinedTextField(
                 label = { Text("Portionen") },
-                value = recipeDetails.name,
-                onValueChange = {},
+                value = recipeDetails.portions,
+                onValueChange = { onItemValueChange(recipeDetails.copy(portions = it)) },
                 shape = RoundedCornerShape(
                     topEnd = dimensionResource(R.dimen.padding_medium),
                     bottomEnd = dimensionResource(R.dimen.padding_medium)
@@ -434,8 +436,11 @@ fun EditInstructionBottomModalSheet(
 @Composable
 fun IngredientsBottomModalSheet(
     modifier: Modifier = Modifier,
+    ingredientDetails: IngredientDetails,
     onShowBottomSheet: (Boolean) -> Unit,
-    ingredientUiState: IngredientBottomModalUiState
+    onAddIngredient: (IngredientDetails, Set<Map<String, String>>) -> Unit,
+    onTypeIngredientDetails: (IngredientDetails, Set<Map<String, String>>) -> Unit,
+    ingredientUiState: IngredientBottomModalUiState,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -443,10 +448,8 @@ fun IngredientsBottomModalSheet(
     var isAmountTextFieldFocused by remember { mutableStateOf(false) }
     var isIngredientTextFieldFocused by remember { mutableStateOf(false) }
 
-
-    var count by remember { mutableIntStateOf(0) }
-
-    val testList: List<String> = listOf("Eins", "zwei")
+    var amount by remember { mutableStateOf("") }
+    var ingredient by remember { mutableStateOf("") }
 
     ModalBottomSheet(
         modifier = Modifier.fillMaxSize(),
@@ -472,28 +475,12 @@ fun IngredientsBottomModalSheet(
             ) {
                 LazyColumn {
                     items(ingredientUiState.ingredients.toList()) { ingredientMap ->
+                        Log.d("Column", ingredientMap.toString())
                         ingredientMap.forEach { (ingredient, amount) ->
-                            Card(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row {
-                                    Text(
-                                        text = amount
-                                    )
-                                    Text(
-                                        text = ingredient
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    IconButton(
-                                        onClick = {}
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            contentDescription = ""
-                                        )
-                                    }
-                                }
-                            }
+                            IngredientCardForBottomSheet(
+                                amount = amount,
+                                ingredient = ingredient
+                            )
                         }
                     }
                 }
@@ -512,9 +499,16 @@ fun IngredientsBottomModalSheet(
                         modifier = Modifier.weight(1.5f)
                     ) {
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
-                            label = { Text( if(isAmountTextFieldFocused)"Menge" else "2 EL")},
+                            value = ingredientDetails.amount,
+                            onValueChange = {
+                                onTypeIngredientDetails(
+                                    ingredientDetails.copy(amount = it),
+                                    ingredientUiState.ingredients,
+                                )
+                                amount = it
+                            },
+                            placeholder = { Text("2 EL") },
+                            label = { Text( if(isAmountTextFieldFocused)"Menge" else "Menge")},
                             shape = RoundedCornerShape(
                                 topStart = dimensionResource(R.dimen.padding_medium),
                                 bottomStart = dimensionResource(R.dimen.padding_medium)
@@ -528,9 +522,16 @@ fun IngredientsBottomModalSheet(
                         modifier = Modifier.weight(3f)
                     ){
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
-                            label = { Text( if(isIngredientTextFieldFocused)"Zutat" else "Zucker")},
+                            value = ingredientDetails.ingredient,
+                            onValueChange = {
+                                onTypeIngredientDetails(
+                                    ingredientDetails.copy(ingredient = it ),
+                                    ingredientUiState.ingredients
+                                )
+                                ingredient = it
+                            },
+                            placeholder = { Text("Zucker")},
+                            label = { Text( if(isIngredientTextFieldFocused)"Zutat" else "Zutat")},
                             shape = RoundedCornerShape(
                                 topEnd = dimensionResource(R.dimen.padding_medium),
                                 bottomEnd = dimensionResource(R.dimen.padding_medium),
@@ -545,7 +546,12 @@ fun IngredientsBottomModalSheet(
                         contentAlignment = Alignment.Center,
                     ){
                         IconButton(
-                            onClick = {},
+                            onClick = {
+                                onAddIngredient(
+                                    IngredientDetails(amount = amount, ingredient = ingredient),
+                                    ingredientUiState.ingredients
+                                )
+                            },
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Send,
@@ -645,6 +651,37 @@ fun IngredientCard(
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.padding(end = 16.dp)
             )
+        }
+    }
+}
+
+@Composable
+fun IngredientCardForBottomSheet(
+    modifier: Modifier = Modifier,
+    amount: String,
+    ingredient: String
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(4.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = amount
+            )
+            Text(
+                text = ingredient
+            )
+            Spacer(Modifier.weight(1f))
+            IconButton(
+                onClick = {}
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = ""
+                )
+            }
         }
     }
 }

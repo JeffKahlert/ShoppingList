@@ -2,9 +2,8 @@ package com.example.einkaufsliste.ui.recipe
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.einkaufsliste.data.internal.recipe.RecipeRepository
-import com.example.einkaufsliste.data.model.Recipe
-import com.example.einkaufsliste.data.model.RecipeWithIngredients
+import com.example.einkaufsliste.data.local.recipe.RecipeRepository
+import com.example.einkaufsliste.data.local.recipe.RecipeWithIngredients
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

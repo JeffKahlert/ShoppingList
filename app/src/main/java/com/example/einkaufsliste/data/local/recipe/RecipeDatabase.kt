@@ -1,9 +1,7 @@
-package com.example.einkaufsliste.data.internal.recipe
+package com.example.einkaufsliste.data.local.recipe
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.example.einkaufsliste.data.model.Ingredient
-import com.example.einkaufsliste.data.model.Recipe
 
 @Database(entities = [Recipe::class, Ingredient::class], version = 5, exportSchema = false)
 abstract class RecipeDatabase : RoomDatabase() {

@@ -1,11 +1,11 @@
-package com.example.einkaufsliste.data.internal.item
+package com.example.einkaufsliste.data.local.item
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.example.einkaufsliste.data.model.Item
+import com.example.einkaufsliste.data.local.item.Item
 import kotlinx.coroutines.flow.Flow
 
 @Dao

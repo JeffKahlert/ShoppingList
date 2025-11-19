@@ -1,4 +1,4 @@
-package com.example.einkaufsliste.data.internal.recipe
+package com.example.einkaufsliste.data.local.recipe
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,9 +6,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.example.einkaufsliste.data.model.Ingredient
-import com.example.einkaufsliste.data.model.Recipe
-import com.example.einkaufsliste.data.model.RecipeWithIngredients
 import kotlinx.coroutines.flow.Flow
 
 @Dao

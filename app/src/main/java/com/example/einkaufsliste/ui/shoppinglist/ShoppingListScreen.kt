@@ -18,11 +18,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,11 +40,9 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -59,7 +57,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.einkaufsliste.R
-import com.example.einkaufsliste.data.model.Item
+import com.example.einkaufsliste.data.local.item.Item
 import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
 import kotlinx.coroutines.launch
@@ -111,6 +109,11 @@ fun ShoppingListScreen(
                         viewModel.updateItem(item)
                     }
                 },
+                onSendClicked = {
+                    coroutineScope.launch {
+                        //viewModel.sendItems()
+                    }
+                }
             )
         }
     }
@@ -125,6 +128,7 @@ fun ShoppingListBody(
     onSaveClick: () -> Unit,
     onSwipeToDelete: (Item) -> Unit,
     onSwipeToCheck: (Item) -> Unit,
+    onSendClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column {
@@ -142,17 +146,42 @@ fun ShoppingListBody(
             }
         }
         Box {
-            Button(
-                shape = Shapes.medium,
-                onClick = { onShowBottomSheet(bottomItemUiState.isBottomSheetVisible) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_medium))
-            ) {
-                Text(
-                    text = stringResource(R.string.add),
-                    style = MaterialTheme.typography.displayMedium
-                )
+            Row {
+                Box(
+                    modifier = Modifier.weight(0.8f)
+                ) {
+                    Button(
+                        shape = Shapes.medium,
+                        onClick = { onShowBottomSheet(bottomItemUiState.isBottomSheetVisible) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(dimensionResource(R.dimen.padding_medium))
+                    ) {
+                        Text(
+                            text = stringResource(R.string.add),
+                            style = MaterialTheme.typography.displayMedium
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier.weight(0.3f)
+                ) {
+                    Button(
+                        shape = Shapes.medium,
+                        onClick = {
+                            onSendClicked()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(dimensionResource(R.dimen.padding_medium))
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.Send,
+                            contentDescription = ""
+                        )
+                    }
+                }
             }
         }
     }
@@ -168,6 +197,24 @@ fun ShoppingListBody(
 }
 
 @Composable
+fun SendDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    AlertDialog(
+        title = {
+
+        },
+        onDismissRequest = {},
+        confirmButton = {},
+        dismissButton = {}
+    )
+
+}
+
+@Composable
 fun BottomModalSheet(
     uiState: BottomSheetUiState,
     itemDetails: ItemDetails,
@@ -177,14 +224,12 @@ fun BottomModalSheet(
     modifier: Modifier = Modifier
 ) {
     val sheetState = rememberModalBottomSheetState()
-    var showBottomSheet by remember { mutableStateOf(false) }
 
     val articleFocusRequester = remember { FocusRequester() }
     val infoFocusRequester = remember { FocusRequester() }
 
     ModalBottomSheet(
         onDismissRequest = {
-            showBottomSheet = false
             onShowBottomSheet(uiState.isBottomSheetVisible)
         },
         sheetState = sheetState,
@@ -396,7 +441,7 @@ fun ShoppingAppTopBar(
         )
 
         Spacer(Modifier.weight(1f))
-        Button(
+        /*Button(
             onClick = onNavigateToRecipesButton,
             modifier = Modifier
                 .padding(end = 16.dp)
@@ -409,7 +454,7 @@ fun ShoppingAppTopBar(
                 contentDescription = "",
                 tint = MaterialTheme.colorScheme.onSurface
             )
-        }
+        }*/
     }
 }
 

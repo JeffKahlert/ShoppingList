@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.einkaufsliste"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.einkaufsliste"
@@ -31,12 +31,14 @@ android {
             )
         }
     }
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(11))
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -65,7 +67,6 @@ dependencies {
 
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.runtime.ktx.v287)
 
     // Hilt
     implementation(libs.hilt.android.v255)
@@ -76,8 +77,10 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-}
 
-kapt {
-    correctErrorTypes = true
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.kotlinx.serialization)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.retrofit2.converter.gson)
 }

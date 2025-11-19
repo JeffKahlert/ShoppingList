@@ -1,8 +1,9 @@
-package com.example.einkaufsliste.data.model
+package com.example.einkaufsliste.data.local.item
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 @Entity(tableName = "items")
 data class Item(
@@ -14,4 +15,3 @@ data class Item(
     @ColumnInfo(name = "sortOrderId", defaultValue = "0")
     val sortOrderId: Int = 0,
 )
-

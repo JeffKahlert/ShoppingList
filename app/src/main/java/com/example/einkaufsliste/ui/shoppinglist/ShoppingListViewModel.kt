@@ -1,17 +1,22 @@
 package com.example.einkaufsliste.ui.shoppinglist
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.einkaufsliste.data.internal.item.ItemRepository
-import com.example.einkaufsliste.data.model.Item
+import com.example.einkaufsliste.data.ItemRepository
+import com.example.einkaufsliste.data.local.item.Item
+import com.example.einkaufsliste.data.remote.ItemDTO
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -52,15 +57,31 @@ class ShoppingListViewModel @Inject constructor(
         itemRepository.updateItem(item)
     }
 
-    suspend fun saveItem() {
-        if (validateInput()) {
-            /*val maxOrder = itemRepository.getMaxSortOrder() ?: 0
-            bottomSheetUiState.itemDetails.sortOrderId = maxOrder + 1*/
-            itemRepository.insertItem(
-                bottomSheetUiState.itemDetails.toItem()
-            )
+    fun saveItem() {
+        viewModelScope.launch {
+            if (validateInput()) {
+                val item = bottomSheetUiState.itemDetails.toItem()
+                val itemDto = bottomSheetUiState.itemDetails.toDto()
+                itemRepository.insertItem(item)
+                itemRepository.sendAllItems(itemDto)
+                /*val maxOrder = itemRepository.getMaxSortOrder() ?: 0
+                bottomSheetUiState.itemDetails.sortOrderId = maxOrder + 1*/
+            }
         }
     }
+
+    /*suspend fun sendItems() {
+        viewModelScope.launch {
+            try {
+                val dbItems = itemRepository.getAllItemsStream()
+                val item = dbItems.first()
+                Log.d("SEND ITEMS", "${dbItems}}")
+                itemRepository.sendAllItems(item)
+            } catch(ex: Exception) {
+                Log.i("ERROR", "Error beim senden")
+            }
+        }
+    }*/
 
     private fun validateInput(uiState: ItemDetails = bottomSheetUiState.itemDetails): Boolean {
         return with(uiState) {
@@ -113,3 +134,10 @@ fun ItemDetails.toItem(): Item = Item(
     description = description,
     isChecked = isChecked,
 )
+
+fun ItemDetails.toDto(): ItemDTO = ItemDTO(
+    name = name.trim(),
+    description = description.trim(),
+    //isChecked = isChecked,
+)
+

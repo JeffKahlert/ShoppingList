@@ -1,13 +1,11 @@
 package com.example.einkaufsliste.ui.recipe
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.einkaufsliste.data.internal.recipe.RecipeRepository
-import com.example.einkaufsliste.data.model.Ingredient
-import com.example.einkaufsliste.data.model.Recipe
+import com.example.einkaufsliste.data.local.recipe.RecipeRepository
+import com.example.einkaufsliste.data.local.recipe.Recipe
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -66,38 +64,60 @@ class AddRecipeViewModel @Inject constructor(
             )
     }
 
-    fun transferRecipeUiStateToEditUiState() {
-        Log.d("TRANSFER", "Vorher: ${editInstructionBottomModalUiState.recipeDetails.instruction}")
+    fun addIngredient(ingredientDetails: IngredientDetails, ingredients: Set<Map<String, String>>) {
+        val ingredientMap: MutableMap<String, String> = mutableMapOf()
+        ingredientMap.put(ingredientDetails.ingredient, ingredientDetails.amount)
+        val ingredientSet = mutableSetOf<Map<String, String>>()
+        ingredientSet.addAll(ingredients)
+        ingredientSet.addAll(listOf(ingredientMap))
 
+        ingredientBottomModalUiState =
+            IngredientBottomModalUiState(
+                ingredients = ingredientSet,
+                ingredientDetails = IngredientDetails("", ""),
+                isVisible = true
+            )
+    }
+
+    fun updateIngredientUiState(ingredientDetails: IngredientDetails, ingredients: Set<Map<String, String>>) {
+        ingredientBottomModalUiState =
+            IngredientBottomModalUiState(
+                ingredients = ingredients,
+                ingredientDetails = ingredientDetails,
+                isVisible = true
+            )
+    }
+
+    fun transferRecipeUiStateToEditUiState() {
         editInstructionBottomModalUiState = EditInstructionBottomModalUiState(
             recipeDetails =  addRecipeUiState.recipeDetails,
             isVisible = true
         )
-
-        Log.d("TRANSFER", "Nachher: ${editInstructionBottomModalUiState.recipeDetails.instruction}")
     }
 
     suspend fun saveItem(){
-        if (validateInput()) {
+        /*if (validateInput()) {
             val recipe = recipeRepository.insertRecipe(addRecipeUiState.recipeDetails.toRecipe())
             val ingredientList =
                 formatIngredientsStringToList(addRecipeUiState.recipeDetails.ingredients)
             val ingredientComponentsList =
             ingredientList.forEach { ingredient ->
-                recipeRepository.insertIngredients(Ingredient(
-                    name = ingredient,
-                    recipeOwnerId = recipe.toInt(),
-                    ingredientId = TODO(),
-                    amount = TODO(),
-                    unit = TODO(),
-                ))
+                recipeRepository.insertIngredients(
+                    Ingredient(
+                        name = ingredient,
+                        recipeOwnerId = recipe.toInt(),
+                        ingredientId = TODO(),
+                        amount = TODO(),
+                        unit = TODO(),
+                    )
+                )
             }
-        }
+        }*/
     }
 
     private fun validateInput(uiState: RecipeDetails = addRecipeUiState.recipeDetails): Boolean {
         return with(uiState) {
-            name.isNotBlank() && ingredients.isNotBlank()
+            name.isNotBlank() && ingredients.isNotEmpty()
         }
     }
 
@@ -115,7 +135,8 @@ data class EditInstructionBottomModalUiState(
 
 data class IngredientBottomModalUiState(
     val isVisible: Boolean = false,
-    val ingredients: Set<Map<String, String>> = emptySet()
+    val ingredients: Set<Map<String, String>> = emptySet(),
+    val ingredientDetails: IngredientDetails = IngredientDetails()
 )
 
 data class RecipeAddUiState(
@@ -125,12 +146,20 @@ data class RecipeAddUiState(
 data class RecipeDetails(
     val id: Int = 0,
     val name: String = "",
-    val ingredients: String = "",
+    val duration: String = "",
+    val amount: String = "",
+    val portions: String = "",
+    val ingredients: Set<Map<String, String>> = emptySet(),
     val instruction: String = ""
 )
 
 data class InstructionDetails(
     val instruction: String = ""
+)
+
+data class IngredientDetails(
+    val amount: String = "",
+    val ingredient: String = ""
 )
 
 fun formatIngredientsStringToList(content: String): List<String> {
@@ -146,5 +175,5 @@ fun formatIngredientsStringToList(content: String): List<String> {
 fun RecipeDetails.toRecipe(): Recipe = Recipe(
     recipeId = id,
     name = name,
-    instruction = instruction
+    instruction = instruction,
     )
