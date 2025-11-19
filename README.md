@@ -8,7 +8,7 @@ Created with Jetpack Compose, Room and Hilt.
 - Re-sort items using long press & drag (not implemented yet)
 - Persistent storage with Room
 - Create and add Recipes (not implemented yet)
-- sending items to backend and save it into DB(example)
+- sending items to backend and saving them into DB(example)
 
 ## Technologien
 - Jetpack Compose
