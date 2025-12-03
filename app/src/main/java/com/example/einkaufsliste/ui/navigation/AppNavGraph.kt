@@ -7,12 +7,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.einkaufsliste.ui.recipe.RecipeAddScreen
 import com.example.einkaufsliste.ui.recipe.RecipesScreen
+import com.example.einkaufsliste.ui.shoppinglist.SharedShoppingListScreen
 import com.example.einkaufsliste.ui.shoppinglist.ShoppingListScreen
 
 enum class AppRoutes() {
     ShoppingList,
     Recipe,
-    AddRecipe
+    AddRecipe,
+    SharedShoppingList
 }
 
 
@@ -24,7 +26,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppRoutes.ShoppingList.name,
+        startDestination = AppRoutes.SharedShoppingList.name,
         modifier = modifier
     ) {
         composable(route = AppRoutes.ShoppingList.name) {
@@ -43,6 +45,10 @@ fun AppNavHost(
                 onBackButton = { navController.navigate(AppRoutes.Recipe.name) },
                 onCancelButton = { navController.navigate(AppRoutes.Recipe.name)}
             )
+        }
+
+        composable(route = AppRoutes.SharedShoppingList.name) {
+            SharedShoppingListScreen()
         }
     }
 }

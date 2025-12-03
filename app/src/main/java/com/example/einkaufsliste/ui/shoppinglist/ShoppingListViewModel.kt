@@ -8,12 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.einkaufsliste.data.ItemRepository
 import com.example.einkaufsliste.data.local.item.Item
-import com.example.einkaufsliste.data.remote.ItemDTO
+import com.example.einkaufsliste.data.local.item.ItemDetails
+import com.example.einkaufsliste.data.local.item.toItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -45,6 +44,7 @@ class ShoppingListViewModel @Inject constructor(
     }
 
     fun updateBottomSheetUiState(itemDetails: ItemDetails) {
+        Log.i("Eingabe", "TEST")
         bottomSheetUiState =
             BottomSheetUiState(
                 itemDetails = itemDetails,
@@ -61,24 +61,24 @@ class ShoppingListViewModel @Inject constructor(
         viewModelScope.launch {
             if (validateInput()) {
                 val item = bottomSheetUiState.itemDetails.toItem()
-                val itemDto = bottomSheetUiState.itemDetails.toDto()
                 itemRepository.insertItem(item)
-                itemRepository.sendAllItems(itemDto)
                 /*val maxOrder = itemRepository.getMaxSortOrder() ?: 0
                 bottomSheetUiState.itemDetails.sortOrderId = maxOrder + 1*/
             }
         }
     }
 
-    /*suspend fun sendItems() {
+    /*fun sendItems() {
+        Log.i("PRESSED", "SEND ITEMS GEDRUECKT")
         viewModelScope.launch {
             try {
-                val dbItems = itemRepository.getAllItemsStream()
-                val item = dbItems.first()
-                Log.d("SEND ITEMS", "${dbItems}}")
-                itemRepository.sendAllItems(item)
+                Log.i("INSIDE", "SEND ITEMS INSIDE")
+                val items = itemRepository.getAllItemsStream().first()
+                val dbItems = items.map { it.toDto() }
+
+                itemRepository.sendItem(dbItems)
             } catch(ex: Exception) {
-                Log.i("ERROR", "Error beim senden")
+                Log.i("ERROR", "Error beim senden: $ex")
             }
         }
     }*/
@@ -114,30 +114,3 @@ data class ShoppingListUiState(
     val checkedItems: List<Item> = emptyList(),
     val message: String? = null,
 )
-
-data class ItemDetails(
-    val id: Int = 0,
-    val name: String = "",
-    val description: String = "",
-    val isChecked: Int = 0,
-    var sortOrderId: Int = 0,
-)
-
-fun Item.toItemDetails(): ItemDetails = ItemDetails(
-    name = name,
-    description = description
-)
-
-fun ItemDetails.toItem(): Item = Item(
-    id = id,
-    name = name,
-    description = description,
-    isChecked = isChecked,
-)
-
-fun ItemDetails.toDto(): ItemDTO = ItemDTO(
-    name = name.trim(),
-    description = description.trim(),
-    //isChecked = isChecked,
-)
-

@@ -3,6 +3,7 @@ package com.example.einkaufsliste.data
 import com.example.einkaufsliste.data.local.item.Item
 import com.example.einkaufsliste.data.remote.ItemDTO
 import kotlinx.coroutines.flow.Flow
+import retrofit2.Call
 import retrofit2.Response
 
 /**
@@ -24,5 +25,11 @@ interface ItemRepository {
 
     suspend fun updateSortOrder(itemId: Int, newOrder: Int)
 
-    suspend fun sendAllItems(items: ItemDTO): Response<ItemDTO>
+    fun getAllItemsRemoteStream(): Flow<List<ItemDTO>>
+
+    suspend fun sendRemoteItem(item: ItemDTO): Response<ItemDTO>
+
+    suspend fun removeRemoteItem(item: ItemDTO): Response<ItemDTO>
+
+    suspend fun updateRemoteItem(item: ItemDTO): Response<ItemDTO>
 }

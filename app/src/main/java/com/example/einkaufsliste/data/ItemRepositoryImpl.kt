@@ -5,6 +5,7 @@ import com.example.einkaufsliste.data.local.item.ItemDAO
 import com.example.einkaufsliste.data.remote.ItemDTO
 import com.example.einkaufsliste.data.network.ShoppingListApiService
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -28,7 +29,18 @@ class ItemRepositoryImpl @Inject constructor(
     override suspend fun updateSortOrder(itemId: Int, newOrder: Int) =
         localItemDAO.updateSortOrder(itemId, newOrder)
 
-    override suspend fun sendAllItems(items: ItemDTO): Response<ItemDTO> {
-        return networkDatabase.sendAllItems(items)
+    override fun getAllItemsRemoteStream(): Flow<List<ItemDTO>> = flow {
+        val items = networkDatabase.getAllItems()
+        emit(items)
     }
+
+    override suspend fun sendRemoteItem(item: ItemDTO): Response<ItemDTO> =
+        networkDatabase.sendItem(item)
+
+    override suspend fun removeRemoteItem(item: ItemDTO): Response<ItemDTO> =
+        networkDatabase.removeItem(item)
+
+    override suspend fun updateRemoteItem(item: ItemDTO): Response<ItemDTO> =
+        networkDatabase.updateItem(item)
+
 }

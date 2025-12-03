@@ -7,6 +7,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.einkaufsliste.ui.navigation.AppNavHost
 
 @Composable
-fun ShoppingListApp(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()) {
+fun ShoppingListApp(
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController()
+) {
     AppNavHost(modifier = modifier, navController = navController)
 }

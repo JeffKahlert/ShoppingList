@@ -20,23 +20,17 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
@@ -67,71 +61,62 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.einkaufsliste.R
 import com.example.einkaufsliste.data.local.item.Item
 import com.example.einkaufsliste.data.local.item.ItemDetails
+import com.example.einkaufsliste.data.remote.RemoteItem
+import com.example.einkaufsliste.data.remote.RemoteItemDetails
 import com.example.einkaufsliste.ui.theme.EinkaufslisteTheme
 import com.example.einkaufsliste.ui.theme.Shapes
 import kotlinx.coroutines.launch
 
 @Composable
-fun ShoppingListScreen(
-    onNavigateToRecipesButton: () -> Unit,
+fun SharedShoppingListScreen(
+    //onNavigateToRecipesButton: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ShoppingListViewModel = hiltViewModel()
+    viewModel: SharedShoppingListViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val shoppingListUiState by viewModel.shoppingListUiState.collectAsState()
+    val sharedShoppingListUiState by viewModel.sharedShoppingItemListUiState.collectAsState()
 
     Column(
         modifier = modifier
     ) {
-        /*Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.weight(0.1f)
-        ) {
-            /*ShoppingAppTopBar(
-                onNavigateToRecipesButton = onNavigateToRecipesButton,
-                modifier = Modifier.fillMaxWidth()
-            )*/
-        }*/
-        Box(
-            //modifier = Modifier.weight(0.9f)
-        ) {
-            ShoppingListBody(
-                shoppingListItems = shoppingListUiState.items,
-                bottomItemUiState = viewModel.bottomSheetUiState,
-                onShowBottomSheet = viewModel::changeBottomSheetUiState,
+        Box {
+            SharedShoppingListBody(
+                shoppingListItems = sharedShoppingListUiState.items,
+                bottomItemUiState = viewModel.sharedListBottomSheetUiState,
+                onShowBottomSheet = viewModel::changeSharedBottomSheetUiState,
                 onSaveClick = {
                     coroutineScope.launch {
-                        viewModel.saveItem()
-                        viewModel.changeBottomSheetUiState(
-                            viewModel.bottomSheetUiState.isBottomSheetVisible
+                        viewModel.sendRemoteItem()
+                        viewModel.changeSharedBottomSheetUiState(
+                            viewModel.sharedListBottomSheetUiState.isBottomSheetVisible
                         )
                     }
                 },
-                onSheetItemValueChange = viewModel::updateBottomSheetUiState,
+                onSheetItemValueChange = viewModel::updateSharedBottomSheetUiState,
                 onSwipeToDelete = { item ->
                     coroutineScope.launch {
-                        viewModel.removeItem(item)
+                        viewModel.removeRemoteItem(item)
                     }
                 },
                 onSwipeToCheck = { item ->
                     coroutineScope.launch {
-                        viewModel.updateItem(item)
+                        viewModel.updateRemoteItem(item)
                     }
-                }
+                },
             )
         }
     }
 }
 
 @Composable
-fun ShoppingListBody(
-    shoppingListItems: List<Item>,
-    bottomItemUiState: BottomSheetUiState,
+fun SharedShoppingListBody(
+    shoppingListItems: List<RemoteItem>,
+    bottomItemUiState: SharedListBottomSheetUiState,
     onShowBottomSheet: (Boolean) -> Unit,
-    onSheetItemValueChange: (ItemDetails) -> Unit,
+    onSheetItemValueChange: (RemoteItemDetails) -> Unit,
     onSaveClick: () -> Unit,
-    onSwipeToDelete: (Item) -> Unit,
-    onSwipeToCheck: (Item) -> Unit,
+    onSwipeToDelete: (RemoteItem) -> Unit,
+    onSwipeToCheck: (RemoteItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column {
@@ -140,7 +125,7 @@ fun ShoppingListBody(
         ) {
             LazyColumn {
                 items(items = shoppingListItems, key = { it.id }){ item ->
-                    SwipeContainer(
+                    SharedSwipeContainer(
                         item,
                         onDelete = onSwipeToDelete,
                         onCheck = onSwipeToCheck,
@@ -170,7 +155,7 @@ fun ShoppingListBody(
         }
     }
     if (bottomItemUiState.isBottomSheetVisible) {
-        BottomModalSheet(
+        SharedScreenBottomModalSheet(
             uiState = bottomItemUiState,
             itemDetails = bottomItemUiState.itemDetails,
             onShowBottomSheet = onShowBottomSheet,
@@ -181,29 +166,11 @@ fun ShoppingListBody(
 }
 
 @Composable
-fun SendDialog(
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-    dialogTitle: String,
-    dialogText: String,
-) {
-    AlertDialog(
-        title = {
-
-        },
-        onDismissRequest = {},
-        confirmButton = {},
-        dismissButton = {}
-    )
-
-}
-
-@Composable
-fun BottomModalSheet(
-    uiState: BottomSheetUiState,
-    itemDetails: ItemDetails,
+fun SharedScreenBottomModalSheet(
+    uiState: SharedListBottomSheetUiState,
+    itemDetails: RemoteItemDetails,
     onShowBottomSheet: (Boolean) -> Unit,
-    onSheetItemValueChange: (ItemDetails) -> Unit = {},
+    onSheetItemValueChange: (RemoteItemDetails) -> Unit = {},
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -276,8 +243,8 @@ fun BottomModalSheet(
 }
 
 @Composable
-fun Item(
-    item: Item,
+fun SharedItem(
+    item: RemoteItem,
     modifier: Modifier = Modifier,
 ) {
     Box {
@@ -306,7 +273,7 @@ fun Item(
                     .fillMaxWidth()
                     .padding(dimensionResource(R.dimen.padding_medium)),
             ) {
-                ItemInformation(
+                SharedItemInformation(
                     name = item.name,
                     information = item.description,
                     isItemChecked = item.isChecked == 1,
@@ -320,7 +287,7 @@ fun Item(
 
 
 @Composable
-fun ItemInformation(
+fun SharedItemInformation(
     name: String,
     information: String?,
     isItemChecked: Boolean,
@@ -349,10 +316,10 @@ fun ItemInformation(
 }
 
 @Composable
-fun SwipeContainer(
-    item: Item,
-    onDelete: (Item) -> Unit = {},
-    onCheck: (Item) -> Unit = {},
+fun SharedSwipeContainer(
+    item: RemoteItem,
+    onDelete: (RemoteItem) -> Unit = {},
+    onCheck: (RemoteItem) -> Unit = {},
 ) {
     val context = LocalContext.current
     val currentItem by rememberUpdatedState(item)
@@ -374,15 +341,15 @@ fun SwipeContainer(
     SwipeToDismissBox(
         state = dismissState,
         modifier = Modifier,
-        backgroundContent = { SwipeBackground(dismissState) },
+        backgroundContent = { SharedSwipeBackground(dismissState) },
         content = {
-            Item(item)
+            SharedItem(item)
         }
     )
 }
 
 @Composable
-fun SwipeBackground(
+fun SharedSwipeBackground(
     swipeDismissState: SwipeToDismissBoxState
 ) {
     val color = if(swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
@@ -408,7 +375,7 @@ fun SwipeBackground(
 }
 
 @Composable
-fun ShoppingAppTopBar(
+fun SharedShoppingAppTopBar(
     onNavigateToRecipesButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -464,31 +431,9 @@ fun ShoppingAppTopBar(
     }
 }
 
-@Composable
-fun SideBar(
-
-) {
-    ModalNavigationDrawer(
-        drawerContent = {
-            ModalDrawerSheet {
-                Text("Drawer title", modifier = Modifier.padding(16.dp))
-                HorizontalDivider()
-                NavigationDrawerItem(
-                    label = { Text(text = "Drawer Item") },
-                    selected = false,
-                    onClick = { /*TODO*/ }
-                )
-                // ...other drawer items
-            }
-        }
-    ) {
-        // Screen content
-    }
-}
-
 @Preview
 @Composable
-fun ShoppingListAppPreviewLight() {
+fun SharedShoppingListAppPreviewLight() {
     EinkaufslisteTheme(darkTheme = false) {
         Scaffold(
             modifier = Modifier.fillMaxSize()
@@ -503,7 +448,7 @@ fun ShoppingListAppPreviewLight() {
 
 @Preview
 @Composable
-fun ShoppingListAppPreviewDark() {
+fun SharedShoppingListAppPreviewDark() {
     EinkaufslisteTheme(darkTheme = true) {
         Scaffold(
             modifier = Modifier.fillMaxSize()
