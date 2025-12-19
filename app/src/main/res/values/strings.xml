@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Einkaufsliste</string>
+    <string name="list">Liste</string>
+    <string name="recipes">Rezepte</string>
+    <string name="add">Hinzufügen</string>
+    <string name="list_page_title">Einkaufsliste</string>
+    <string name="recipe_page_title">Rezepte</string>
+    <string name="ingredients">Zutaten</string>
+    <string name="instruction">Anweisung</string>
+    <string name="name">Name</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="save">Speichern</string>
+    <string name="addArticle">Artikel hinzufügen</string>
+    <string name="article">Artikel</string>
+    <string name="info">Info</string>
+    <string name="deleteArticle">Artikel entfernt</string>
+    <string name="addInfo">Hier kann die Stückzahl
+        oder anderweitige Information zum Artikel eingefügt werden</string>
+    <string name="recipe">Rezept</string>
+    <string name="private_button">Privat</string>
+    <string name="shared_button">Geteilt</string>
+</resources>
